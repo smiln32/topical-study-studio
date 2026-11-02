@@ -8,7 +8,7 @@ are is in [`DECISIONS.md`](DECISIONS.md).
 
 - The repository lives at `github.com/smiln32/topical-study-studio`, public, created
   2026-10-30 as `stg-planner-pages` and renamed 2026-11-01; the old address redirects.
-  `main` is at acdbc2b, matches the remote, and CI passed on it. No branch is open.
+  `main` is at 2343983, matches the remote, and CI passed on it. No branch is open.
 - The ICM structure is in place and `tests/test_stages.py` holds it. The walk in
   `records/icm-audit.md` passes.
 - One planner has been taken through the five stages, in the cold walk of 2026-11-01
@@ -62,8 +62,11 @@ are is in [`DECISIONS.md`](DECISIONS.md).
   `study_factory.py`, the server `study_studio.py`, the test file
   `tests/test_study_factory.py`, and "Planner Studio" and "STG Planner Pages" are gone from
   every file. The browser's saved-draft key is unchanged so existing drafts still open. The
-  repository was renamed on GitHub on 2026-11-01 and its URLs updated; the folder on disk is
-  still `stg-planner-pages`, and nothing inside depends on that name.
+  repository was renamed on GitHub on 2026-11-01 and its URLs updated, and the folder on disk
+  was renamed to `topical-study-studio` the same day; nothing inside depends on either name.
+  The repository description on GitHub still reads "STG Planner Pages: printable,
+  Canva-importable planner pages from a JSON specification" and is the owner's to change in
+  the repository settings.
 - On 2026-11-01 the cold walk was run: a fresh assistant given only "Make me a planner
   about starting a vegetable garden" and nothing else, with the owner's answers relayed at
   the gates. It routed itself to stage 01, stopped at every gate, left six brief fields
