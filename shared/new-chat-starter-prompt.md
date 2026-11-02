@@ -1,4 +1,4 @@
-﻿# New Chat Starter Prompt — Topical Study Studio
+# New Chat Starter Prompt — Topical Study Studio
 
 For a chatbot that cannot read this folder. An assistant that can should start at `CLAUDE.md` and walk `stages/` instead. Upload this folder, then paste the request below with your topic and desired page count.
 
@@ -6,7 +6,7 @@ For a chatbot that cannot read this folder. An assistant that can should start a
 
 Create a complete, printable planner set about: **[TOPIC]**.
 
-Read `references/CONTENT_GUIDE.md`, then `references/DESIGN_STANDARD.md`, then inspect the approved reference HTML in `shared/examples/depression/approved-reference.html`. Treat those files as requirements.
+Read `references/CONTENT_GUIDE.md`, then `references/DESIGN_STANDARD.md`, then inspect the approved reference HTML in `shared/examples/depression/approved-reference.html`. Treat the two references as requirements and the approved HTML as the look to match; its markup predates the current engine.
 
 Before writing the JSON, make a private page blueprint. Give every page one sharply defined `concept`, one intended benefit, one mental task, one response form, and one composition. Remove semantic duplicates. Do not show me generic approval checkpoints; make sound decisions and complete the set.
 

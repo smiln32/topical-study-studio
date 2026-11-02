@@ -1,8 +1,8 @@
-﻿# Topical Study Studio: How It Works
+# Topical Study Studio: How It Works
 
 ## Overview
 
-Topical Study Studio is a small Python-based system for creating polished, printable pages from structured JSON files. It was built for planners and is being turned into a tool for topical Bible studies. The study pieces, Scripture blocks from the NASB 2020, a repeating session structure and a verse count, are not built yet, so this guide describes the tool as it works today. The two program files will be renamed as part of that change; the commands below use their current names.
+Topical Study Studio is a small Python-based system for creating polished, printable pages from structured JSON files. It was built for planners and is being turned into a tool for topical Bible studies. The study pieces, Scripture blocks from the NASB 2020, a repeating session structure and a verse count, are not built yet, so this guide describes the tool as it works today.
 
 You describe a planner set in JSON: its title, page concepts, section positions, prompts, writing areas, checklists, choices, and tables. The factory validates that description and converts it into a self-contained HTML document. Each generated page is exactly 816 × 1056 pixels, representing an 8.5 × 11-inch US Letter page.
 

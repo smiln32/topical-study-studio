@@ -15,5 +15,9 @@ Layer 3. Nothing here changes from one planner run to the next.
 `examples/basic/spec.json`.
 Regenerate it after any change to how a page prints.
 
+`examples/depression/approved-reference.html` is the look the owner approved, frozen before the
+engine added its page-role marker. It is for eyes only: no check counts its pages, and
+`examples/depression/generated.html` is what the engine produces now.
+
 `new-chat-starter-prompt.md` is derived from the stage contracts and the references. Nothing
 regenerates it, so when a contract changes, read it again.

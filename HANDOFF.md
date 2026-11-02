@@ -8,7 +8,8 @@ are is in [`DECISIONS.md`](DECISIONS.md).
 
 - The repository lives at `github.com/smiln32/topical-study-studio`, public, created
   2026-10-30 as `stg-planner-pages` and renamed 2026-11-01; the old address redirects.
-  `main` is at 2343983, matches the remote, and CI passed on it. No branch is open.
+  `main` matches the remote and CI passed on it; `git log` carries the hash. The branch
+  `handoff-after-rename` is open with the work described under the review below.
 - The ICM structure is in place and `tests/test_stages.py` holds it. The walk in
   `records/icm-audit.md` passes.
 - One planner has been taken through the five stages, in the cold walk of 2026-11-01
@@ -67,6 +68,13 @@ are is in [`DECISIONS.md`](DECISIONS.md).
   The repository description on GitHub still reads "STG Planner Pages: printable,
   Canva-importable planner pages from a JSON specification" and is the owner's to change in
   the repository settings.
+- On 2026-11-01 Muse delivered a read-only review of `main` at 2343983: pass with
+  non-blocking findings. The branch `handoff-after-rename` closes findings 1 to 6 and 8: the
+  validator now rejects malformed shapes and unusable content instead of crashing, the Studio
+  escapes theme, colour and geometry, themes and column widths must be colours and lengths,
+  content taller than its box and blocks closer than 14 px draw warnings, `custom_html` is
+  announced at generation time, and the documentation drift is gone. Finding 7, that no tool
+  enforces the export gate, is the recorded decision. Finding 9 is item 5 under Next.
 - On 2026-11-01 the cold walk was run: a fresh assistant given only "Make me a planner
   about starting a vegetable garden" and nothing else, with the owner's answers relayed at
   the gates. It routed itself to stage 01, stopped at every gate, left six brief fields
@@ -79,15 +87,12 @@ are is in [`DECISIONS.md`](DECISIONS.md).
 
 ## Next
 
-1. **Rename the folder on disk**, if wanted, to `topical-study-studio`. Do it with no
-   editor or server open in it, because it sits in OneDrive. Nothing inside depends on the
-   name; the assistant's memory folder is keyed to the old path and will simply start fresh.
-2. **The first study, through the stages as they are.** Give stage 01 a real study, six
+1. **The first study, through the stages as they are.** Give stage 01 a real study, six
    sessions on one subject, and take it through stage 02 only. The plan will show which
    pages the current blocks cannot express and how the whole-set uniqueness rule objects to
-   a session shape that repeats. The engine changes in item 3 should come out of that plan,
+   a session shape that repeats. The engine changes in item 2 should come out of that plan,
    not out of a list.
-3. **The study build**, in the order the first study demands:
+2. **The study build**, in the order the first study demands:
    uniqueness per session rather than per set; the study content types (a passage with
    observation space, a cross-reference table, a memory-verse card, numbered discussion
    questions, a prayer page), each added to the engine, `references/SPECIFICATION.md` and an
@@ -98,12 +103,16 @@ are is in [`DECISIONS.md`](DECISIONS.md).
    wellness ones. `shared/examples/study/` is a start: one session on Psalm 23 built from the
    planner types, made 2026-11-01 as the source of the README image. It quotes no Scripture,
    so it needs no notice; a full study example still waits on the study types.
-4. **The page engine and the page standard disagree on two colours.**
+3. **The page engine and the page standard disagree on two colours.**
    `references/DESIGN_STANDARD.md` gives block borders as `#606864` and rules as `#aeb7b2`;
    `study_factory.py` draws them `#5c5c5c` and `#b9b9b9`, and the Studio preview copies
    the engine. Change the standard or the engine, not the Studio. Changing the engine alters
    every generated page and the approved reference HTML in `shared/examples/`, so if the
    engine moves, regenerate those and look at them.
-5. **Small cosmetic items**, none blocking: `--init` without `--topic` titles the page
+4. **Small cosmetic items**, none blocking: `--init` without `--topic` titles the page
    "My My Focus"; `study_studio.py` accepts `--host 0.0.0.0` with no authentication and
    its help text does not say so.
+5. **Decide on a per-passage accuracy tick.** The review of 2026-11-01 asked that, before the
+   first study quotes Scripture, stage 04 carry a line the author ticks per passage, "reference
+   checked against the NASB 2020 text". That is accuracy, not doctrine, so it does not reopen
+   the doctrinal-review decision; whether it goes in the contract is the owner's call.

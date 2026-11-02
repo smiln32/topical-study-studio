@@ -1,4 +1,4 @@
-﻿# Planner Specification Reference
+# Planner Specification Reference
 
 Topical Study Studio reads a UTF-8 JSON document and renders each entry in `pages` as an editable 816 × 1056 px US Letter page.
 
@@ -132,7 +132,7 @@ Errors cover page/block presence and shape, numeric geometry, safe-area bounds, 
 
 | Exit code | Meaning |
 |---:|---|
-| `0` | Generation succeeded or validation passed without findings. |
+| `0` | Generation succeeded, even if warnings were printed, or `--validate-only` passed without findings. |
 | `1` | Validation completed with advisory warnings. |
 | `2` | Invalid input, validation error, or unreadable specification. |
 

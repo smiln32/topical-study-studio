@@ -1,4 +1,4 @@
-﻿name: Validate Topical Study Studio
+name: Validate Topical Study Studio
 
 on:
   push:

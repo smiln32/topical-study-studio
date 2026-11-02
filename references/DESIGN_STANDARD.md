@@ -1,4 +1,4 @@
-﻿# Full-Page Planner Design Standard
+# Full-Page Planner Design Standard
 
 ## Canvas and geometry
 

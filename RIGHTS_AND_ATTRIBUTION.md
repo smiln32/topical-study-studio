@@ -1,4 +1,4 @@
-﻿# Rights and Attribution
+# Rights and Attribution
 
 Copyright © 2026 Carla Bosteder.
 

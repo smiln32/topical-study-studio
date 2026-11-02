@@ -1,4 +1,4 @@
-﻿# Evidence-Informed Planner Content Guide
+# Evidence-Informed Planner Content Guide
 
 Use this guide whenever a topic is converted into planner pages. A planner supports reflection and action; it does not diagnose, treat, promise outcomes, or replace professional care.
 
