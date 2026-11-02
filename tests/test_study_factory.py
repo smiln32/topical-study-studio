@@ -1,6 +1,9 @@
+import contextlib
+import io
 import json
 import tempfile
 import unittest
+from unittest import mock
 import threading
 import urllib.request
 from http.server import ThreadingHTTPServer
@@ -44,6 +47,56 @@ class PlannerFactoryTests(unittest.TestCase):
         spec["pages"][0]["blocks"][1].update(x=28, y=104, w=300, h=200)
         findings = study_factory.validate(spec)
         self.assertTrue(any("overlap" in finding for finding in findings))
+
+    def test_unknown_content_type_is_an_error(self):
+        spec = self.load_example()
+        spec["pages"][0]["blocks"][0]["content"] = {"type": "nope"}
+        findings = study_factory.validate(spec)
+        self.assertTrue(any("unknown content type 'nope'" in finding for finding in findings))
+
+    def test_non_numeric_counts_are_errors(self):
+        for content in (
+            {"type": "lines", "rows": "abc"},
+            {"type": "checklist", "items": ["a"], "blank_rows": None},
+            {"type": "choices", "options": ["a"], "lines_after": -1},
+            {"type": "split", "left": {"type": "lines", "rows": "x"}},
+        ):
+            with self.subTest(content=content):
+                spec = self.load_example()
+                spec["pages"][0]["blocks"][0]["content"] = content
+                self.assertTrue(any("must be a whole number" in f for f in study_factory.validate(spec)))
+
+    def test_table_columns_must_be_objects(self):
+        spec = self.load_example()
+        spec["pages"][0]["blocks"][0]["content"] = {"type": "table", "columns": ["Day", "Notes"]}
+        self.assertTrue(any('"columns" must be a list of objects' in f for f in study_factory.validate(spec)))
+
+    def test_malformed_specification_shapes_are_errors_not_crashes(self):
+        for spec in (
+            [],
+            {"pages": {}},
+            {"pages": [["not", "a", "page"]]},
+            {"pages": [{"title": "T", "blocks": None}]},
+            {"pages": [{"title": "T", "blocks": ["not a block"]}]},
+            {"pages": [{"title": "T", "blocks": [{"x": 28, "y": 104, "w": 760, "h": 900, "content": "lines"}]}]},
+        ):
+            with self.subTest(spec=spec):
+                findings = study_factory.validate(spec)
+                self.assertTrue(findings and all(f.startswith("ERROR") for f in findings))
+
+    def test_main_reports_an_unexpected_failure_plainly(self):
+        spec = self.load_example()
+        with tempfile.TemporaryDirectory() as tmp:
+            spec_path = Path(tmp) / "spec.json"
+            spec_path.write_text(json.dumps(spec), encoding="utf-8")
+            argv = ["study_factory.py", str(spec_path), str(Path(tmp) / "out.html")]
+            with mock.patch("sys.argv", argv), mock.patch.object(study_factory, "render", side_effect=RuntimeError("boom")):
+                stderr = io.StringIO()
+                with contextlib.redirect_stderr(stderr):
+                    code = study_factory.main()
+        self.assertEqual(code, 2)
+        self.assertIn("Could not generate: boom", stderr.getvalue())
+        self.assertNotIn("Traceback", stderr.getvalue())
 
     def test_invalid_geometry_is_an_error(self):
         cases = [

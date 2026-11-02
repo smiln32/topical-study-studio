@@ -166,9 +166,10 @@ def validate_uniqueness_and_collisions(spec: dict[str, Any]) -> list[str]:
         elif concept: concepts[concept] = page_no
         blocks = page.get("blocks", [])
         for block_no, block in enumerate(blocks, 1):
+            content = block.get("content", {})
             for label, value, seen in (
                 ("section title", block.get("title", ""), section_titles),
-                ("prompt", block.get("content", {}).get("prompt", ""), prompts),
+                ("prompt", content.get("prompt", "") if isinstance(content, dict) else "", prompts),
             ):
                 phrase = normalize_phrase(value)
                 if phrase and phrase in seen:
@@ -188,7 +189,64 @@ def validate_uniqueness_and_collisions(spec: dict[str, Any]) -> list[str]:
                 if ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by:
                     findings.append(f"ERROR: Page {page_no}, blocks {a} and {b} overlap.")
     return findings
+CONTENT_TYPES = ("lines", "checklist", "choices", "callout", "table", "split", "custom_html")
+COUNT_FIELDS = ("rows", "blank_rows", "lines_after")
+
+
+def validate_shape(spec: Any) -> list[str]:
+    """Report a specification whose shape the other checks cannot read."""
+    if not isinstance(spec, dict):
+        return ['ERROR: The specification must be a JSON object with a "pages" list.']
+    pages = spec.get("pages", [])
+    if not isinstance(pages, list):
+        return ['ERROR: "pages" must be a list of page objects.']
+    findings = []
+    for idx, page in enumerate(pages, start=1):
+        if not isinstance(page, dict):
+            findings.append(f"ERROR: Page {idx} must be an object."); continue
+        blocks = page.get("blocks", [])
+        if not isinstance(blocks, list):
+            findings.append(f'ERROR: Page {idx}: "blocks" must be a list of block objects.'); continue
+        for n, block in enumerate(blocks, start=1):
+            if not isinstance(block, dict):
+                findings.append(f"ERROR: Page {idx}, block {n} must be an object.")
+    return findings
+
+
+def validate_content(content: Any, where: str) -> list[str]:
+    """Report content that render_content could not draw."""
+    if not isinstance(content, dict):
+        return [f'ERROR: {where}: "content" must be an object.']
+    findings = []
+    kind = content.get("type", "lines")
+    if kind not in CONTENT_TYPES:
+        findings.append(f"ERROR: {where}: unknown content type {kind!r}. Use one of: {', '.join(CONTENT_TYPES)}.")
+    for field in COUNT_FIELDS:
+        if field in content:
+            try:
+                if int(content[field]) < 0: raise ValueError
+            except (TypeError, ValueError):
+                findings.append(f'ERROR: {where}: "{field}" must be a whole number, not {content[field]!r}.')
+    for field in ("items", "options"):
+        if field in content and not isinstance(content[field], list):
+            findings.append(f'ERROR: {where}: "{field}" must be a list.')
+    if kind == "table":
+        columns = content.get("columns", [])
+        if not isinstance(columns, list) or not all(isinstance(c, dict) for c in columns):
+            findings.append(f'ERROR: {where}: table "columns" must be a list of objects, each with a "label".')
+        elif not all(isinstance(c.get("label", ""), str) for c in columns):
+            findings.append(f'ERROR: {where}: every table column "label" must be text.')
+    if kind == "split":
+        for side in ("left", "right"):
+            if side in content:
+                findings.extend(validate_content(content[side], f"{where}, {side} side"))
+    return findings
+
+
 def validate(spec: dict[str, Any]) -> list[str]:
+    shape_findings = validate_shape(spec)
+    if shape_findings:
+        return shape_findings
     warnings: list[str] = []
     pages = spec.get("pages", [])
     if not pages:
@@ -202,6 +260,7 @@ def validate(spec: dict[str, Any]) -> list[str]:
             continue
         bottoms = []
         for n, block in enumerate(blocks, start=1):
+            warnings.extend(validate_content(block.get("content", {}), f"Page {idx}, block {n}"))
             try:
                 x, y, w, h = (int(block[k]) for k in ("x", "y", "w", "h"))
             except (KeyError, TypeError, ValueError):
@@ -299,26 +358,30 @@ def main() -> int:
         print(f"Could not read specification: {exc}", file=sys.stderr)
         return 2
 
-    warnings = validate(spec)
-    for warning in warnings:
-        print(warning, file=sys.stderr)
-    if any(warning.startswith("ERROR") for warning in warnings):
-        print(f"Validation failed with {len(warnings)} finding(s).", file=sys.stderr)
-        return 2
+    try:
+        warnings = validate(spec)
+        for warning in warnings:
+            print(warning, file=sys.stderr)
+        if any(warning.startswith("ERROR") for warning in warnings):
+            print(f"Validation failed with {len(warnings)} finding(s).", file=sys.stderr)
+            return 2
 
-    page_count = len(spec.get("pages", []))
-    block_count = sum(len(page.get("blocks", [])) for page in spec.get("pages", []))
-    if args.validate_only:
-        if warnings:
-            print(f"Validation completed with {len(warnings)} warning(s): {page_count} page(s), {block_count} block(s).")
-            return 1
-        print(f"Validation passed: {page_count} page(s), {block_count} block(s).")
+        page_count = len(spec.get("pages", []))
+        block_count = sum(len(page.get("blocks", [])) for page in spec.get("pages", []))
+        if args.validate_only:
+            if warnings:
+                print(f"Validation completed with {len(warnings)} warning(s): {page_count} page(s), {block_count} block(s).")
+                return 1
+            print(f"Validation passed: {page_count} page(s), {block_count} block(s).")
+            return 0
+
+        args.output.write_text(render(spec), encoding="utf-8")
+        print(f"Generated {page_count} page(s) with {block_count} block(s): {args.output}")
         return 0
 
-    args.output.write_text(render(spec), encoding="utf-8")
-    print(f"Generated {page_count} page(s) with {block_count} block(s): {args.output}")
-    return 0
-
+    except Exception as exc:  # a shape the checks above did not foresee
+        print(f"Could not generate: {exc}", file=sys.stderr)
+        return 2
 
 if __name__ == "__main__":
     raise SystemExit(main())
