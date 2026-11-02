@@ -158,6 +158,12 @@ class PlannerFactoryTests(unittest.TestCase):
             self.assertNotIn("\u00c3", text)
             self.assertNotIn("\u00e2\u20ac", text)
 
+    def test_studio_templates_escape_theme_colour_and_geometry(self):
+        script = (ROOT / "studio" / "app.js").read_text(encoding="utf-8")
+        for raw in ("${p.theme}", "${b.color}", "${b.x}", "${b.y}", "${b.w}", "${b.h}"):
+            self.assertNotIn(raw, script, f"{raw} is interpolated into HTML without esc()")
+        self.assertIn("style.setProperty('--theme',p.theme)", script)
+
     def test_rendered_titles_are_clamped_to_the_header(self):
         html = study_factory.render(self.load_example())
         self.assertIn("-webkit-line-clamp:2", html)
