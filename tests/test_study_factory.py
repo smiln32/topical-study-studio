@@ -96,9 +96,10 @@ class PlannerFactoryTests(unittest.TestCase):
                 stderr = io.StringIO()
                 with contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(io.StringIO()):
                     code = study_factory.main()
+            output = out_path.read_text(encoding="utf-8")
         self.assertEqual(code, 0)
         self.assertIn("custom HTML, which is inserted unescaped", stderr.getvalue())
-        self.assertIn("<b>x</b>", out_path.read_text(encoding="utf-8"))
+        self.assertIn("<b>x</b>", output)
 
     def test_main_reports_an_unexpected_failure_plainly(self):
         spec = self.load_example()
