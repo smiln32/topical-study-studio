@@ -8,7 +8,7 @@
       "theme": "#b2c6b1",
       "blocks": [
         {"x":28,"y":104,"w":760,"h":150,"title":"How do I feel?","color":"sage","content":{"type":"choices","control":"radio","options":["Very low","Low","Okay","Better"],"lines_after":3}},
-        {"x":28,"y":268,"w":373,"h":300,"title":"Basic care","color":"blue","content":{"type":"checklist","items":["I ate","I drank water","I took medication","I rested"],"blank_rows":7}},
+        {"x":28,"y":268,"w":373,"h":300,"title":"Basic care","color":"blue","content":{"type":"checklist","items":["I ate","I drank water","I took medication","I rested"],"blank_rows":6}},
         {"x":415,"y":268,"w":373,"h":300,"title":"What feels hardest?","color":"lav","content":{"type":"lines","rows":10}},
         {"x":28,"y":582,"w":760,"h":448,"title":"One thing I need","color":"warm","content":{"type":"lines","rows":16}}
       ]
@@ -19,7 +19,7 @@
       "theme": "#c6b5c8",
       "blocks": [
         {"x":28,"y":104,"w":760,"h":810,"title":"Weekly tracker","color":"lav","content":{"type":"table","rows":12,"columns":[{"label":"Day / Date","width":"15%"},{"label":"Mood","width":"10%"},{"label":"Energy","width":"10%"},{"label":"Sleep","width":"12%"},{"label":"Notes"}]}},
-        {"x":28,"y":928,"w":760,"h":102,"title":"Pattern I noticed","color":"sage","content":{"type":"lines","rows":3}}
+        {"x":28,"y":928,"w":760,"h":102,"title":"Pattern I noticed","color":"sage","content":{"type":"lines","rows":2}}
       ]
     }
   ]

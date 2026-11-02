@@ -195,6 +195,36 @@ COLOR_RE = re.compile(r"^(#[0-9a-fA-F]{3,8}|[a-zA-Z]+|(rgb|rgba|hsl|hsla)\([0-9.
 LENGTH_RE = re.compile(r"^\d+(\.\d+)?(%|px|em|rem)$")
 
 
+# A block's head is 32px and its body starts 11px below that. The body's 11px bottom padding sits
+# inside the clipping box, so content may run into it and still print; past it, the box cuts it off.
+HEAD_H, BODY_TOP_PAD, LINE_H, CHECK_H, TABLE_ROW_H, TABLE_HEAD_H, PROMPT_H, PILL_H = 32, 11, 22, 24, 32, 24, 16, 24
+TITLE_CHARS = 90
+
+
+def _count(content: dict[str, Any], field: str, default: int) -> int:
+    try: return max(0, int(content.get(field, default)))
+    except (TypeError, ValueError): return default
+
+
+def estimate_content_height(content: Any, width: int) -> int:
+    """Roughly how tall the content renders, in px, so a box that clips can be named."""
+    if not isinstance(content, dict): return 0
+    kind = content.get("type", "lines")
+    total = PROMPT_H if content.get("prompt") else 0
+    if kind == "lines": total += _count(content, "rows", 6) * LINE_H
+    elif kind == "checklist":
+        items = content.get("items", [])
+        total += ((len(items) if isinstance(items, list) else 0) + _count(content, "blank_rows", 0)) * CHECK_H
+    elif kind == "choices": total += PILL_H + _count(content, "lines_after", 0) * LINE_H
+    elif kind == "callout":
+        chars_per_line = max(20, (width - 2 * 13) // 5)
+        total += -(-len(str(content.get("text", ""))) // chars_per_line) * 14 + _count(content, "rows", 0) * LINE_H
+    elif kind == "table": total += TABLE_HEAD_H + _count(content, "rows", 10) * TABLE_ROW_H
+    elif kind == "split":
+        total += max(estimate_content_height(content.get(side, {}), (width - 12) // 2) for side in ("left", "right"))
+    return total
+
+
 def validate_shape(spec: Any) -> list[str]:
     """Report a specification whose shape the other checks cannot read."""
     if not isinstance(spec, dict):
@@ -261,6 +291,9 @@ def validate(spec: dict[str, Any]) -> list[str]:
         return warnings
 
     for idx, page in enumerate(pages, start=1):
+        title = str(page.get("title", ""))
+        if len(title) > TITLE_CHARS:
+            warnings.append(f"Page {idx}: the title is {len(title)} characters; the header shows about two lines ({TITLE_CHARS} characters) and hides the rest.")
         theme = page.get("theme")
         if theme is not None and not (isinstance(theme, str) and COLOR_RE.match(theme)):
             warnings.append(f"ERROR: Page {idx}: theme {theme!r} is not a colour. Use a hex code such as #b2c6b1 or a colour name.")
@@ -285,6 +318,12 @@ def validate(spec: dict[str, Any]) -> list[str]:
             if y + h > SAFE_BOTTOM:
                 warnings.append(f"ERROR: Page {idx}, block {n}: extends below the safe content bottom ({SAFE_BOTTOM}px).")
             bottoms.append(y + h)
+            body_h, need = h - HEAD_H - BODY_TOP_PAD, estimate_content_height(block.get("content", {}), w)
+            if need > body_h:
+                warnings.append(
+                    f"Page {idx}, block {n} ({block.get('title', 'untitled')}): about {need}px of content in a {body_h}px body; "
+                    f"what runs past the bottom will not print. Remove rows or make the block taller."
+                )
         if bottoms and max(bottoms) < FILL_TARGET:
             warnings.append(
                 f"Page {idx}: content stops at {max(bottoms)}px; extend it to at least {FILL_TARGET}px so the page feels full."

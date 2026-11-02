@@ -2,8 +2,8 @@
 
 **One job:** find out whether the planner is fit to export. Change nothing.
 
-The validator sees geometry and repetition. It cannot see a clipped heading, a cramped
-writing area or a prompt that is not worth answering. This stage renders a proof and
+The validator sees geometry, repetition and, by estimate, content too tall for its box. It
+cannot see a cramped writing area or a prompt that is not worth answering. This stage renders a proof and
 writes down what a person must judge.
 
 ## Inputs
@@ -47,8 +47,8 @@ Run the command from the project root.
    the validation exit code and every finding, word for word. If `<slug>.warnings.md`
    exists, copy each reason beneath its warning. From the brief and the plan, record the
    page count and the page that carries the scope and support note. From the specification,
-   name the blocks with the most rows for their height: the validator cannot see a clipped
-   row, so the report says where one would show first.
+   name the blocks with the most rows for their height: the validator estimates a clipped row
+   but cannot see one, so the report says where one would show first.
 5. Give a verdict from the validation exit code: **PASS** with 0; **PASS WITH WARNINGS** with
    1 when every warning has its reason from stage 03; **FAIL** with 2, with no proof written,
    or with a warning that has no reason.

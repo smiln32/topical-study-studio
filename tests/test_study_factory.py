@@ -118,6 +118,20 @@ class PlannerFactoryTests(unittest.TestCase):
         table["columns"][0]["width"] = "15%"
         self.assertEqual(study_factory.validate(spec), [])
 
+    def test_content_taller_than_its_box_is_a_warning(self):
+        spec = self.load_example()
+        block = spec["pages"][0]["blocks"][1]
+        block["content"] = {"type": "checklist", "items": [f"Checklist item {i}" for i in range(1, 31)]}
+        block["h"] = 200
+        findings = study_factory.validate(spec)
+        self.assertTrue(any("will not print" in f and "Basic care" in f for f in findings))
+        self.assertFalse(any(f.startswith("ERROR") for f in findings))
+
+    def test_long_titles_are_a_warning(self):
+        spec = self.load_example()
+        spec["pages"][0]["title"] = "A very long page title that keeps going " * 4
+        self.assertTrue(any("hides the rest" in f for f in study_factory.validate(spec)))
+
     def test_invalid_geometry_is_an_error(self):
         cases = [
             {"x": 28, "y": 104, "w": 179, "h": 200},
