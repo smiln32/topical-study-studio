@@ -8,7 +8,7 @@ It was built for wellness planners and is being turned into a tool for **topical
 
 Each page is designed around one clear concept, with response formats and layouts chosen to match its purpose.
 
-![Two generated planner pages showing the toolkit's spacing, typography, checklists, and writing areas](assets/planner-preview.png)
+![A generated Bible study page: a session on Psalm 23 with a passage to copy out, observation lines, words to look up, interpretation lines and an application prayer](assets/study-preview.png)
 
 ## What it provides
 

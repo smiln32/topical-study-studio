@@ -95,7 +95,9 @@ are is in [`DECISIONS.md`](DECISIONS.md).
    count in stage 04 that fails above 500 and reports the proportion of the work that is
    Scripture; the NASB 2020 notice printed by stage 05, with the wording copied from
    lockman.org once; and a study example in `shared/examples/` to stand beside or replace the
-   wellness ones.
+   wellness ones. `shared/examples/study/` is a start: one session on Psalm 23 built from the
+   planner types, made 2026-11-01 as the source of the README image. It quotes no Scripture,
+   so it needs no notice; a full study example still waits on the study types.
 4. **The page engine and the page standard disagree on two colours.**
    `references/DESIGN_STANDARD.md` gives block borders as `#606864` and rules as `#aeb7b2`;
    `study_factory.py` draws them `#5c5c5c` and `#b9b9b9`, and the Studio preview copies

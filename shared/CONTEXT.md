@@ -8,6 +8,7 @@ Layer 3. Nothing here changes from one planner run to the next.
 | A two-page example and its output | `examples/basic/` | Tests, CI, anyone learning the format |
 | A full planner, its generated output and the approved visual reference | `examples/depression/` | CI, stage 03 as a model of a finished set |
 | An earlier planner as a PDF, for comparison only | `examples/adhd/planner-pages.pdf` | People; no stage reads it |
+| One Bible study session built from the planner types; the source of the README image | `examples/study/` | People; no stage reads it |
 | The whole build as one prompt for a chatbot without this folder | `new-chat-starter-prompt.md` | People using an assistant that cannot read the stages |
 
 `examples/basic/output.html` must be exactly what the engine produces from
