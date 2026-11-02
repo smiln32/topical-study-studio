@@ -25,6 +25,9 @@ records/           Kept, not instructions: the ICM structure audit
 study_factory.py study_studio.py studio/ tests/ assets/   the engine and its checks
 DECISIONS.md       why things are the way they are
 HANDOFF.md         what comes next
+README.md          the public front page
+HOW_IT_WORKS.md    how a person sets the tool up and uses it
+RIGHTS_AND_ATTRIBUTION.md   who owns what and under which licence
 ```
 
 ## Working in the stage folders
