@@ -84,6 +84,22 @@ class PlannerFactoryTests(unittest.TestCase):
                 findings = study_factory.validate(spec)
                 self.assertTrue(findings and all(f.startswith("ERROR") for f in findings))
 
+    def test_custom_html_is_noted_at_generation_time(self):
+        spec = self.load_example()
+        spec["pages"][0]["blocks"][0]["content"] = {"type": "split", "left": {"type": "custom_html", "html": "<b>x</b>"}}
+        self.assertTrue(study_factory.uses_custom_html(spec))
+        self.assertFalse(study_factory.uses_custom_html(self.load_example()))
+        with tempfile.TemporaryDirectory() as tmp:
+            spec_path, out_path = Path(tmp) / "spec.json", Path(tmp) / "out.html"
+            spec_path.write_text(json.dumps(spec), encoding="utf-8")
+            with mock.patch("sys.argv", ["study_factory.py", str(spec_path), str(out_path)]):
+                stderr = io.StringIO()
+                with contextlib.redirect_stderr(stderr):
+                    code = study_factory.main()
+        self.assertEqual(code, 0)
+        self.assertIn("custom HTML, which is inserted unescaped", stderr.getvalue())
+        self.assertIn("<b>x</b>", out_path.read_text(encoding="utf-8"))
+
     def test_main_reports_an_unexpected_failure_plainly(self):
         spec = self.load_example()
         with tempfile.TemporaryDirectory() as tmp:

@@ -229,6 +229,20 @@ def estimate_content_height(content: Any, width: int) -> int:
     return total
 
 
+def uses_custom_html(spec: Any) -> bool:
+    """True when any block, or either side of a split, is custom_html."""
+    def walk(content: Any) -> bool:
+        if not isinstance(content, dict): return False
+        if content.get("type") == "custom_html": return True
+        return any(walk(content.get(side)) for side in ("left", "right"))
+    if not isinstance(spec, dict) or not isinstance(spec.get("pages"), list): return False
+    return any(
+        walk(block.get("content"))
+        for page in spec["pages"] if isinstance(page, dict) and isinstance(page.get("blocks"), list)
+        for block in page["blocks"] if isinstance(block, dict)
+    )
+
+
 def validate_shape(spec: Any) -> list[str]:
     """Report a specification whose shape the other checks cannot read."""
     if not isinstance(spec, dict):
@@ -415,6 +429,9 @@ def main() -> int:
         warnings = validate(spec)
         for warning in warnings:
             print(warning, file=sys.stderr)
+        if uses_custom_html(spec):
+            print("Note: this specification contains custom HTML, which is inserted unescaped. "
+                  "Only generate specifications from authors you trust.", file=sys.stderr)
         if any(warning.startswith("ERROR") for warning in warnings):
             print(f"Validation failed with {len(warnings)} finding(s).", file=sys.stderr)
             return 2
