@@ -94,7 +94,7 @@ class PlannerFactoryTests(unittest.TestCase):
             spec_path.write_text(json.dumps(spec), encoding="utf-8")
             with mock.patch("sys.argv", ["study_factory.py", str(spec_path), str(out_path)]):
                 stderr = io.StringIO()
-                with contextlib.redirect_stderr(stderr):
+                with contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(io.StringIO()):
                     code = study_factory.main()
         self.assertEqual(code, 0)
         self.assertIn("custom HTML, which is inserted unescaped", stderr.getvalue())
