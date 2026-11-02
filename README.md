@@ -15,7 +15,7 @@ Each page is designed around one clear concept, with response formats and layout
 - Exact 816 × 1056 px US Letter pages
 - Editable HTML text, writing lines, checkboxes, tables, and section containers
 - Consistent typography, spacing, margins, borders, and color roles
-- Validation for page bounds, underfilled layouts, overlapping blocks, repeated concepts, and repeated prompts
+- Validation for page bounds, underfilled layouts, overlapping or crowded blocks, content taller than its box, repeated concepts, and repeated prompts
 - Content guidance for encouraging reflection without shame, pressure, forced positivity, or unnecessary repetition
 - Reusable JSON specifications for producing complete planner sets
 - Example specifications and approved visual references

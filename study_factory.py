@@ -186,8 +186,12 @@ def validate_uniqueness_and_collisions(spec: dict[str, Any]) -> list[str]:
             except (KeyError, TypeError, ValueError): continue  # already reported by validate()
         for i, (a, ax, ay, aw, ah) in enumerate(boxes):
             for b, bx, by, bw, bh in boxes[i + 1:]:
-                if ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by:
+                dx = max(bx - (ax + aw), ax - (bx + bw))  # horizontal distance between edges; negative when they share columns
+                dy = max(by - (ay + ah), ay - (by + bh))  # vertical distance between edges; negative when they share rows
+                if dx < 0 and dy < 0:
                     findings.append(f"ERROR: Page {page_no}, blocks {a} and {b} overlap.")
+                elif (dx < 0 or dy < 0) and max(dx, dy) < GAP:
+                    findings.append(f"Page {page_no}, blocks {a} and {b} are {max(dx, dy)}px apart; the standard gap is {GAP}px.")
     return findings
 CONTENT_TYPES = ("lines", "checklist", "choices", "callout", "table", "split", "custom_html")
 COUNT_FIELDS = ("rows", "blank_rows", "lines_after")

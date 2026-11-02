@@ -48,7 +48,7 @@ Every block uses absolute pixel geometry on the 816 × 1056 canvas.
 | `color` | No | string | `sage`, `lav`, `blue`, `warm`, `rose`, or `ivory`. |
 | `content` | Yes | object | Response-area definition selected by `type`. |
 
-Use 14 px gaps between neighboring blocks. Blocks must be at least 180 × 92 px, stay within x=28–788 and y=104–1030, and must not overlap.
+Use 14 px gaps between neighboring blocks; the validator warns when neighbours are closer. Blocks must be at least 180 × 92 px, stay within x=28–788 and y=104–1030, and must not overlap.
 
 ## Shared content fields
 
@@ -128,7 +128,7 @@ HTML is inserted without escaping. Use only trusted specifications. The author i
 
 ## Validation
 
-Checks include page/block presence, numeric geometry, safe-area bounds, minimum block size, full-page use, overlaps, repeated concepts, repeated section titles, and repeated prompts.
+Errors cover page/block presence and shape, numeric geometry, safe-area bounds, minimum block size, overlaps, unknown content types, non-numeric counts, malformed table columns, themes that are not colours, widths that are not lengths, repeated concepts, repeated section titles, and repeated prompts. Warnings cover an underfilled page, content estimated taller than its block, a title longer than the header shows, and neighbouring blocks closer than 14 px.
 
 | Exit code | Meaning |
 |---:|---|

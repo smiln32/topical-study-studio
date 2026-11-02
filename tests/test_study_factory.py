@@ -132,6 +132,15 @@ class PlannerFactoryTests(unittest.TestCase):
         spec["pages"][0]["title"] = "A very long page title that keeps going " * 4
         self.assertTrue(any("hides the rest" in f for f in study_factory.validate(spec)))
 
+    def test_blocks_closer_than_the_standard_gap_are_a_warning(self):
+        spec = self.load_example()
+        spec["pages"][0]["blocks"][2].update(x=401)  # touches the block to its left edge to edge
+        findings = study_factory.validate(spec)
+        self.assertTrue(any("0px apart" in f for f in findings))
+        self.assertFalse(any("overlap" in f for f in findings))
+        spec["pages"][0]["blocks"][2].update(x=415)
+        self.assertEqual(study_factory.validate(spec), [])
+
     def test_invalid_geometry_is_an_error(self):
         cases = [
             {"x": 28, "y": 104, "w": 179, "h": 200},
