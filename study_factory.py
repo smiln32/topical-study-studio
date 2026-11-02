@@ -191,6 +191,8 @@ def validate_uniqueness_and_collisions(spec: dict[str, Any]) -> list[str]:
     return findings
 CONTENT_TYPES = ("lines", "checklist", "choices", "callout", "table", "split", "custom_html")
 COUNT_FIELDS = ("rows", "blank_rows", "lines_after")
+COLOR_RE = re.compile(r"^(#[0-9a-fA-F]{3,8}|[a-zA-Z]+|(rgb|rgba|hsl|hsla)\([0-9.,%\s/]+\))$")
+LENGTH_RE = re.compile(r"^\d+(\.\d+)?(%|px|em|rem)$")
 
 
 def validate_shape(spec: Any) -> list[str]:
@@ -236,6 +238,11 @@ def validate_content(content: Any, where: str) -> list[str]:
             findings.append(f'ERROR: {where}: table "columns" must be a list of objects, each with a "label".')
         elif not all(isinstance(c.get("label", ""), str) for c in columns):
             findings.append(f'ERROR: {where}: every table column "label" must be text.')
+        else:
+            for c in columns:
+                width = c.get("width")
+                if width is not None and not (isinstance(width, str) and LENGTH_RE.match(width)):
+                    findings.append(f'ERROR: {where}: column width {width!r} is not a length. Use a percentage such as "15%".')
     if kind == "split":
         for side in ("left", "right"):
             if side in content:
@@ -254,6 +261,9 @@ def validate(spec: dict[str, Any]) -> list[str]:
         return warnings
 
     for idx, page in enumerate(pages, start=1):
+        theme = page.get("theme")
+        if theme is not None and not (isinstance(theme, str) and COLOR_RE.match(theme)):
+            warnings.append(f"ERROR: Page {idx}: theme {theme!r} is not a colour. Use a hex code such as #b2c6b1 or a colour name.")
         blocks = page.get("blocks", [])
         if not blocks:
             warnings.append(f"Page {idx}: no blocks defined.")

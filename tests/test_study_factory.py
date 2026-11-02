@@ -98,6 +98,26 @@ class PlannerFactoryTests(unittest.TestCase):
         self.assertIn("Could not generate: boom", stderr.getvalue())
         self.assertNotIn("Traceback", stderr.getvalue())
 
+    def test_theme_must_be_a_colour(self):
+        for theme in ("red; display:none", "#fff\" onload=\"x", "url(javascript:evil)", 7):
+            with self.subTest(theme=theme):
+                spec = self.load_example()
+                spec["pages"][0]["theme"] = theme
+                self.assertTrue(any("is not a colour" in f for f in study_factory.validate(spec)))
+        for theme in ("#b2c6b1", "#FFF", "rebeccapurple", "rgb(10, 20, 30)"):
+            with self.subTest(theme=theme):
+                spec = self.load_example()
+                spec["pages"][0]["theme"] = theme
+                self.assertEqual(study_factory.validate(spec), [])
+
+    def test_table_column_width_must_be_a_length(self):
+        spec = self.load_example()
+        table = spec["pages"][1]["blocks"][0]["content"]
+        table["columns"][0]["width"] = "15%; display:none"
+        self.assertTrue(any("is not a length" in f for f in study_factory.validate(spec)))
+        table["columns"][0]["width"] = "15%"
+        self.assertEqual(study_factory.validate(spec), [])
+
     def test_invalid_geometry_is_an_error(self):
         cases = [
             {"x": 28, "y": 104, "w": 179, "h": 200},
