@@ -1,15 +1,15 @@
 # Handoff
 
 Written 2026-10-29, when the repository was laid out as an ICM workspace; brought up to date
-2026-11-01. It holds the state of the work and what to do next. Why things are the way they
+2026-11-03. It holds the state of the work and what to do next. Why things are the way they
 are is in [`DECISIONS.md`](DECISIONS.md).
 
 ## State
 
 - The repository lives at `github.com/smiln32/topical-study-studio`, public, created
   2026-10-30 as `stg-planner-pages` and renamed 2026-11-01; the old address redirects.
-  `main` matches the remote and CI passed on it; `git log` carries the hash. The branch
-  `handoff-after-rename` is open with the work described under the review below.
+  `main` matches the remote and CI passed on it; `git log` carries the hash. No branch is
+  open: `handoff-after-rename`, described under the reviews below, was merged 2026-11-03.
 - The ICM structure is in place and `tests/test_stages.py` holds it. The walk in
   `records/icm-audit.md` passes.
 - One planner has been taken through the five stages, in the cold walk of 2026-11-01
@@ -23,7 +23,7 @@ are is in [`DECISIONS.md`](DECISIONS.md).
 - The engine is unchanged in behaviour but for one fix: the overlap check in
   `study_factory.py` raised `TypeError` on a numeric string coordinate such as `"28"`
   instead of reporting a finding. It now parses geometry once and compares integers, with a
-  test. The suite is twenty-three checks. CI compiles `study_studio.py` as well, reads the
+  test. The suite is thirty-eight checks. CI compiles `study_studio.py` as well, reads the
   examples from `shared/examples/`, and carries the product's new name.
 - An independent review on 2026-10-29 found seven gaps in the contracts: no way for stage
   05 to know the checked specification was the exported one, stale downstream files on a
@@ -68,6 +68,21 @@ are is in [`DECISIONS.md`](DECISIONS.md).
   The repository description on GitHub still reads "STG Planner Pages: printable,
   Canva-importable planner pages from a JSON specification" and is the owner's to change in
   the repository settings.
+- On 2026-11-03 the first study went through stages 01 and 02 and stopped at the stage 02
+  gate. It is *Timothy: Young and Trusted*, slug `timothy`: a led class of adults at church,
+  30 minutes a session, six sessions of two pages, teacherly with a slant toward
+  conversational, default colour, not sensitive, and the outcome in the owner's words,
+  "understand youth can still be powerful". The approved brief is
+  `stages/01_brief/output/timothy.brief.md` and the plan, not yet approved, is
+  `stages/02_pages/output/timothy.plan.md`; both are git-ignored and exist on the owner's
+  disk only. The plan chose the passages (Acts 16:1-5; 1 Timothy 4:12-16; Philippians
+  2:19-24; 2 Timothy 1:3-7; 2 Timothy 2:1-7 with 1 Corinthians 16:10-11; 2 Timothy 4:1-8
+  with Hebrews 13:23), 39 verses in all, and passes the stage's four audit checks. It did
+  the job the handoff asked of it: every page can be laid out with today's blocks, but it
+  names six shortfalls, in the order they bite: no passage block, so a callout stands in
+  with no verse numbers, reference line or notice; the whole-set uniqueness rule refusing a
+  section title that every session needs; no numbered discussion questions; no memory-verse
+  card; no timeline; no support map. Item 2 under Next is reordered to match.
 - On 2026-11-01 Muse delivered a read-only review of `main` at 2343983: pass with
   non-blocking findings. The branch `handoff-after-rename` closes findings 1 to 6 and 8: the
   validator now rejects malformed shapes and unusable content instead of crashing, the Studio
@@ -90,16 +105,21 @@ are is in [`DECISIONS.md`](DECISIONS.md).
 
 ## Next
 
-1. **The first study, through the stages as they are.** Give stage 01 a real study, six
-   sessions on one subject, and take it through stage 02 only. The plan will show which
-   pages the current blocks cannot express and how the whole-set uniqueness rule objects to
-   a session shape that repeats. The engine changes in item 2 should come out of that plan,
-   not out of a list.
-2. **The study build**, in the order the first study demands:
-   uniqueness per session rather than per set; the study content types (a passage with
-   observation space, a cross-reference table, a memory-verse card, numbered discussion
-   questions, a prayer page), each added to the engine, `references/SPECIFICATION.md` and an
-   example; a study content guide, observation then interpretation then application; a verse
+1. **Read the Timothy plan and decide.** The first study, *Timothy: Young and Trusted*, has
+   been through stages 01 and 02 and waits at the stage 02 gate; see the State bullet. The
+   owner reads `stages/02_pages/output/timothy.plan.md`, changes the page list as wanted,
+   and chooses: build the engine changes in item 2 first and then run stage 03 with real
+   study blocks, or run stage 03 now with the approximations the plan names and record them
+   in its warnings file. The first is the better order; the plan exists so the engine can be
+   changed for a real page list, not a list of guesses.
+2. **The study build**, in the order the Timothy plan demands:
+   a passage block (reference line, verse numbers, a place for the notice), which every one
+   of its twelve pages opens with; uniqueness per session rather than per set, since the
+   validator will refuse "Read the passage" twelve times; numbered discussion questions,
+   which a led class needs on most pages; a memory-verse card; a timeline and a support
+   map, each wanted once; and, not demanded by this plan but still expected, a
+   cross-reference table and a prayer page. Each type is added to the engine,
+   `references/SPECIFICATION.md` and an example; a study content guide, observation then interpretation then application; a verse
    count in stage 04 that fails above 500 and reports the proportion of the work that is
    Scripture; the NASB 2020 notice printed by stage 05, with the wording copied from
    lockman.org once; and a study example in `shared/examples/` to stand beside or replace the
