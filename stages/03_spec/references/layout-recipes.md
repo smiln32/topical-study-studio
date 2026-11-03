@@ -42,4 +42,4 @@ overlap, which is what the validator checks.
 
 A `lines` row is 22px, a checklist row 24px, a table row about 40px with its header. Each
 block loses 32px to its header and 22px to padding, and a prompt costs about 17px more.
-Rows that do not fit are clipped silently, so count before you write.
+Rows that do not fit are clipped; the validator estimates when that will happen and warns, so count before you write.

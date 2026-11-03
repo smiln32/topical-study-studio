@@ -128,7 +128,7 @@ HTML is inserted without escaping. Use only trusted specifications. The author i
 
 ## Validation
 
-Errors cover page/block presence and shape, numeric geometry, safe-area bounds, minimum block size, overlaps, unknown content types, row counts that are not whole numbers from 0 to 200, malformed table columns, themes that are not colours, widths that are not lengths, repeated concepts, repeated section titles, and repeated prompts. Warnings cover an underfilled page, content estimated taller than its block, a title longer than the header shows, and neighbouring blocks closer than 14 px.
+Errors, which stop generation, cover a missing or malformed `pages` list, page and block shape, numeric geometry, safe-area bounds, minimum block size, overlaps, unknown content types, row counts that are not whole numbers from 0 to 200, malformed table columns, themes that are not colours, widths that are not lengths, and repeated concepts. Warnings, which do not, cover a page with no blocks, an underfilled page, repeated section titles, repeated prompts, content estimated taller than its block, a title longer than the header shows, and neighbouring blocks closer than 14 px.
 
 | Exit code | Meaning |
 |---:|---|
