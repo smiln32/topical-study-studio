@@ -75,6 +75,9 @@ are is in [`DECISIONS.md`](DECISIONS.md).
   content taller than its box and blocks closer than 14 px draw warnings, `custom_html` is
   announced at generation time, and the documentation drift is gone. Finding 7, that no tool
   enforces the export gate, is the recorded decision. Finding 9 is item 5 under Next.
+  Codex reviewed the branch on 2026-11-03 and returned seven follow-ups, all closed on it the
+  same day: whole-number row counts capped at 200, a JSON error from the Studio on failure,
+  the clipping estimate corrected against Chrome, a real colour check, and two document lines.
 - On 2026-11-01 the cold walk was run: a fresh assistant given only "Make me a planner
   about starting a vegetable garden" and nothing else, with the owner's answers relayed at
   the gates. It routed itself to stage 01, stopped at every gate, left six brief fields
