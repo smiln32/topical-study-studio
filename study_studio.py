@@ -20,11 +20,13 @@ class Handler(SimpleHTTPRequestHandler):
     def do_POST(self):
         try: spec=json.loads(self.rfile.read(int(self.headers.get('Content-Length','0'))))
         except Exception as exc: return self.send_json({'error':str(exc)},400)
-        findings=study_factory.validate(spec); valid=not any(x.startswith('ERROR') for x in findings)
-        if self.path=='/api/validate': return self.send_json({'valid':valid,'findings':findings})
-        if self.path=='/api/render':
-            if not valid: return self.send_json({'error':'Fix validation errors before exporting.','findings':findings},422)
-            body=study_factory.render(spec).encode(); self.send_response(200); self.send_header('Content-Type','text/html; charset=utf-8'); self.send_header('Content-Disposition','attachment; filename="planner.html"'); self.send_header('Content-Length',str(len(body))); self.end_headers(); return self.wfile.write(body)
+        try:
+            findings=study_factory.validate(spec); valid=not any(x.startswith('ERROR') for x in findings)
+            if self.path=='/api/validate': return self.send_json({'valid':valid,'findings':findings})
+            if self.path=='/api/render':
+                if not valid: return self.send_json({'error':'Fix validation errors before exporting.','findings':findings},422)
+                body=study_factory.render(spec).encode(); self.send_response(200); self.send_header('Content-Type','text/html; charset=utf-8'); self.send_header('Content-Disposition','attachment; filename="planner.html"'); self.send_header('Content-Length',str(len(body))); self.end_headers(); return self.wfile.write(body)
+        except Exception as exc: return self.send_json({'error':'Could not generate: '+str(exc)},500)
         self.send_json({'error':'Not found'},404)
 def main():
     p=argparse.ArgumentParser(description='Run Topical Study Studio locally.'); p.add_argument('--host',default='127.0.0.1'); p.add_argument('--port',type=int,default=8765); p.add_argument('--no-browser',action='store_true'); a=p.parse_args(); server=ThreadingHTTPServer((a.host,a.port),Handler); url=f'http://{a.host}:{a.port}'; print(f'Topical Study Studio is ready at {url} — press Ctrl+C to stop.');

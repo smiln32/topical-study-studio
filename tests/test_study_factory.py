@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from unittest import mock
 import threading
+import urllib.error
 import urllib.request
 from http.server import ThreadingHTTPServer
 from pathlib import Path
@@ -260,5 +261,27 @@ class PlannerFactoryTests(unittest.TestCase):
         finally:
             server.shutdown()
             server.server_close()
+    def test_studio_reports_a_failure_as_json_not_a_traceback(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            url = f"http://127.0.0.1:{server.server_port}/api/validate"
+            request = urllib.request.Request(url, data=b"[]", headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(request) as response:
+                payload = json.loads(response.read())
+            self.assertFalse(payload["valid"])
+            self.assertTrue(payload["findings"][0].startswith("ERROR"))
+            with mock.patch.object(study_factory, "validate", side_effect=RuntimeError("boom")):
+                request = urllib.request.Request(url, data=b"{}", headers={"Content-Type": "application/json"})
+                with self.assertRaises(urllib.error.HTTPError) as caught:
+                    urllib.request.urlopen(request)
+            self.assertEqual(caught.exception.code, 500)
+            self.assertEqual(json.loads(caught.exception.read())["error"], "Could not generate: boom")
+        finally:
+            server.shutdown()
+            server.server_close()
+
+
 if __name__ == "__main__":
     unittest.main()
