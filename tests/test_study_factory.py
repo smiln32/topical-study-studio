@@ -165,6 +165,25 @@ class PlannerFactoryTests(unittest.TestCase):
         self.assertTrue(any("will not print" in f and "Basic care" in f for f in findings))
         self.assertFalse(any(f.startswith("ERROR") for f in findings))
 
+    def one_block_page(self, content, h):
+        filler_y = 104 + h + 14
+        return {"pages": [{"title": "T", "blocks": [
+            {"x": 28, "y": 104, "w": 760, "h": h, "title": "Probe", "content": content},
+            {"x": 28, "y": filler_y, "w": 760, "h": 1030 - filler_y, "title": "Filler", "content": {"type": "lines", "rows": 4}},
+        ]}]}
+
+    def test_clipping_estimate_matches_measured_pages(self):
+        fits = (  # measured in Chrome: each of these prints whole
+            ({"type": "table", "rows": 8, "columns": [{"label": "a"}]}, 320),
+            ({"type": "choices", "options": ["Yes"], "lines_after": 3}, 126),
+            ({"type": "split"}, 160),
+        )
+        for content, h in fits:
+            with self.subTest(content=content, h=h):
+                self.assertEqual(study_factory.validate(self.one_block_page(content, h)), [])
+        clipped = self.one_block_page({"type": "checklist", "items": ["a", "b", "c"]}, 115)  # last row 2px past the border
+        self.assertTrue(any("will not print" in f for f in study_factory.validate(clipped)))
+
     def test_long_titles_are_a_warning(self):
         spec = self.load_example()
         spec["pages"][0]["title"] = "A very long page title that keeps going " * 4

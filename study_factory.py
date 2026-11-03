@@ -201,9 +201,10 @@ COLOR_RE = re.compile(r"^(#[0-9a-fA-F]{3,8}|[a-zA-Z]+|(rgb|rgba|hsl|hsla)\([0-9.
 LENGTH_RE = re.compile(r"^\d+(\.\d+)?(%|px|em|rem)$")
 
 
-# A block's head is 32px and its body starts 11px below that. The body's 11px bottom padding sits
-# inside the clipping box, so content may run into it and still print; past it, the box cuts it off.
-HEAD_H, BODY_TOP_PAD, LINE_H, CHECK_H, TABLE_ROW_H, TABLE_HEAD_H, PROMPT_H, PILL_H = 32, 11, 22, 24, 32, 24, 16, 24
+# A block's head is 32px and its body starts 11px below that, inside a 1.2px border top and bottom.
+# The body's 11px bottom padding sits inside the clipping box, so content may run into it and
+# still print; past it, the box cuts it off. Row heights were measured in Chrome.
+HEAD_H, BODY_TOP_PAD, BORDER_W, LINE_H, CHECK_H, TABLE_ROW_H, TABLE_HEAD_H, PROMPT_H, PILL_H = 32, 11, 1.2, 22, 24, 31, 21, 16, 14
 TITLE_CHARS = 90
 
 
@@ -219,7 +220,7 @@ def _count(content: dict[str, Any], field: str, default: int) -> int:
     return int(value) if is_count(value) else default
 
 
-def estimate_content_height(content: Any, width: int) -> int:
+def estimate_content_height(content: Any, width: int) -> float:
     """Roughly how tall the content renders, in px, so a box that clips can be named."""
     if not isinstance(content, dict): return 0
     kind = content.get("type", "lines")
@@ -234,7 +235,8 @@ def estimate_content_height(content: Any, width: int) -> int:
         total += -(-len(str(content.get("text", ""))) // chars_per_line) * 14 + _count(content, "rows", 0) * LINE_H
     elif kind == "table": total += TABLE_HEAD_H + _count(content, "rows", 10) * TABLE_ROW_H
     elif kind == "split":
-        total += max(estimate_content_height(content.get(side, {}), (width - 12) // 2) for side in ("left", "right"))
+        default = {"type": "lines", "rows": 5}  # what render_content draws for a missing side
+        total += max(estimate_content_height(content.get(side, default), (width - 12) // 2) for side in ("left", "right"))
     return total
 
 
@@ -342,10 +344,10 @@ def validate(spec: dict[str, Any]) -> list[str]:
             if y + h > SAFE_BOTTOM:
                 warnings.append(f"ERROR: Page {idx}, block {n}: extends below the safe content bottom ({SAFE_BOTTOM}px).")
             bottoms.append(y + h)
-            body_h, need = h - HEAD_H - BODY_TOP_PAD, estimate_content_height(block.get("content", {}), w)
+            body_h, need = h - HEAD_H - BODY_TOP_PAD - 2 * BORDER_W, estimate_content_height(block.get("content", {}), w)
             if need > body_h:
                 warnings.append(
-                    f"Page {idx}, block {n} ({block.get('title', 'untitled')}): about {need}px of content in a {body_h}px body; "
+                    f"Page {idx}, block {n} ({block.get('title', 'untitled')}): about {round(need)}px of content in a {round(body_h)}px body; "
                     f"what runs past the bottom will not print. Remove rows or make the block taller."
                 )
         if bottoms and max(bottoms) < FILL_TARGET:
