@@ -54,17 +54,37 @@ class PlannerFactoryTests(unittest.TestCase):
         findings = study_factory.validate(spec)
         self.assertTrue(any("unknown content type 'nope'" in finding for finding in findings))
 
-    def test_non_numeric_counts_are_errors(self):
+    def test_counts_must_be_whole_numbers_the_type_reads(self):
         for content in (
             {"type": "lines", "rows": "abc"},
+            {"type": "lines", "rows": 2.9},
+            {"type": "lines", "rows": -0.5},
+            {"type": "lines", "rows": True},
+            {"type": "lines", "rows": 10**30},
+            {"type": "lines", "rows": json.loads("1e309")},
             {"type": "checklist", "items": ["a"], "blank_rows": None},
             {"type": "choices", "options": ["a"], "lines_after": -1},
+            {"type": "table", "columns": [{"label": "a"}], "rows": 10**30},
             {"type": "split", "left": {"type": "lines", "rows": "x"}},
         ):
             with self.subTest(content=content):
                 spec = self.load_example()
                 spec["pages"][0]["blocks"][0]["content"] = content
                 self.assertTrue(any("must be a whole number" in f for f in study_factory.validate(spec)))
+        for content in (
+            {"type": "lines", "rows": 7},
+            {"type": "lines", "rows": "7"},
+            {"type": "custom_html", "html": "<b>x</b>", "rows": "unused"},
+        ):
+            with self.subTest(content=content):
+                spec = self.load_example()
+                spec["pages"][0]["blocks"][0]["content"] = content
+                self.assertFalse(any(f.startswith("ERROR") for f in study_factory.validate(spec)))
+
+    def test_infinite_geometry_is_an_error_not_a_crash(self):
+        spec = self.load_example()
+        spec["pages"][0]["blocks"][0]["x"] = json.loads("1e309")
+        self.assertTrue(any("invalid x/y/w/h" in f for f in study_factory.validate(spec)))
 
     def test_table_columns_must_be_objects(self):
         spec = self.load_example()

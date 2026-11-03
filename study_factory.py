@@ -183,7 +183,7 @@ def validate_uniqueness_and_collisions(spec: dict[str, Any]) -> list[str]:
         boxes = []
         for n, block in enumerate(blocks, 1):
             try: boxes.append((n, *(int(block[k]) for k in ("x", "y", "w", "h"))))
-            except (KeyError, TypeError, ValueError): continue  # already reported by validate()
+            except (KeyError, TypeError, ValueError, OverflowError): continue  # already reported by validate()
         for i, (a, ax, ay, aw, ah) in enumerate(boxes):
             for b, bx, by, bw, bh in boxes[i + 1:]:
                 dx = max(bx - (ax + aw), ax - (bx + bw))  # horizontal distance between edges; negative when they share columns
@@ -194,7 +194,9 @@ def validate_uniqueness_and_collisions(spec: dict[str, Any]) -> list[str]:
                     findings.append(f"Page {page_no}, blocks {a} and {b} are {max(dx, dy)}px apart; the standard gap is {GAP}px.")
     return findings
 CONTENT_TYPES = ("lines", "checklist", "choices", "callout", "table", "split", "custom_html")
-COUNT_FIELDS = ("rows", "blank_rows", "lines_after")
+# The count field each content type reads; split and custom_html read none.
+COUNT_FIELDS = {"lines": "rows", "checklist": "blank_rows", "choices": "lines_after", "callout": "rows", "table": "rows"}
+MAX_COUNT = 200  # more rows than any page can hold
 COLOR_RE = re.compile(r"^(#[0-9a-fA-F]{3,8}|[a-zA-Z]+|(rgb|rgba|hsl|hsla)\([0-9.,%\s/]+\))$")
 LENGTH_RE = re.compile(r"^\d+(\.\d+)?(%|px|em|rem)$")
 
@@ -205,9 +207,16 @@ HEAD_H, BODY_TOP_PAD, LINE_H, CHECK_H, TABLE_ROW_H, TABLE_HEAD_H, PROMPT_H, PILL
 TITLE_CHARS = 90
 
 
+def is_count(value: Any) -> bool:
+    """A whole number of rows: a non-negative int, or a string of digits. Not a bool, float or negative."""
+    if isinstance(value, bool): return False
+    if isinstance(value, int): return 0 <= value <= MAX_COUNT
+    return isinstance(value, str) and value.isdigit() and int(value) <= MAX_COUNT
+
+
 def _count(content: dict[str, Any], field: str, default: int) -> int:
-    try: return max(0, int(content.get(field, default)))
-    except (TypeError, ValueError): return default
+    value = content.get(field, default)
+    return int(value) if is_count(value) else default
 
 
 def estimate_content_height(content: Any, width: int) -> int:
@@ -271,12 +280,9 @@ def validate_content(content: Any, where: str) -> list[str]:
     kind = content.get("type", "lines")
     if kind not in CONTENT_TYPES:
         findings.append(f"ERROR: {where}: unknown content type {kind!r}. Use one of: {', '.join(CONTENT_TYPES)}.")
-    for field in COUNT_FIELDS:
-        if field in content:
-            try:
-                if int(content[field]) < 0: raise ValueError
-            except (TypeError, ValueError):
-                findings.append(f'ERROR: {where}: "{field}" must be a whole number, not {content[field]!r}.')
+    field = COUNT_FIELDS.get(kind)
+    if field and field in content and not is_count(content[field]):
+        findings.append(f'ERROR: {where}: "{field}" must be a whole number from 0 to {MAX_COUNT}, not {content[field]!r}.')
     for field in ("items", "options"):
         if field in content and not isinstance(content[field], list):
             findings.append(f'ERROR: {where}: "{field}" must be a list.')
@@ -324,7 +330,7 @@ def validate(spec: dict[str, Any]) -> list[str]:
             warnings.extend(validate_content(block.get("content", {}), f"Page {idx}, block {n}"))
             try:
                 x, y, w, h = (int(block[k]) for k in ("x", "y", "w", "h"))
-            except (KeyError, TypeError, ValueError):
+            except (KeyError, TypeError, ValueError, OverflowError):
                 warnings.append(f"ERROR: Page {idx}, block {n}: invalid x/y/w/h.")
                 continue
             if w < MIN_BLOCK_W or h < MIN_BLOCK_H:
