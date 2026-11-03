@@ -197,7 +197,29 @@ CONTENT_TYPES = ("lines", "checklist", "choices", "callout", "table", "split", "
 # The count field each content type reads; split and custom_html read none.
 COUNT_FIELDS = {"lines": "rows", "checklist": "blank_rows", "choices": "lines_after", "callout": "rows", "table": "rows"}
 MAX_COUNT = 200  # more rows than any page can hold
-COLOR_RE = re.compile(r"^(#[0-9a-fA-F]{3,8}|[a-zA-Z]+|(rgb|rgba|hsl|hsla)\([0-9.,%\s/]+\))$")
+CSS_COLOR_NAMES = frozenset("""aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown
+burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray
+darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue
+darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite
+forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory
+khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen
+lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime
+limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue
+mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive
+olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum
+powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue
+slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke
+yellow yellowgreen transparent""".split())
+HEX_COLOR_RE = re.compile(r"^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
+# rgb()/hsl() with three numbers, each with an optional unit, and an optional fourth for alpha
+_N = r"[0-9]*\.?[0-9]+(deg|rad|grad|turn|%)?"
+FUNC_COLOR_RE = re.compile(rf"^(rgb|rgba|hsl|hsla)\(\s*{_N}\s*[,\s]\s*{_N}\s*[,\s]\s*{_N}\s*([,/]\s*{_N}\s*)?\)$")
+
+
+def is_color(value: Any) -> bool:
+    """A colour the browser will accept: a hex code, a CSS colour name, or an rgb()/hsl() value."""
+    if not isinstance(value, str): return False
+    return bool(HEX_COLOR_RE.match(value) or value.lower() in CSS_COLOR_NAMES or FUNC_COLOR_RE.match(value))
 LENGTH_RE = re.compile(r"^\d+(\.\d+)?(%|px|em|rem)$")
 
 
@@ -321,7 +343,7 @@ def validate(spec: dict[str, Any]) -> list[str]:
         if len(title) > TITLE_CHARS:
             warnings.append(f"Page {idx}: the title is {len(title)} characters; the header shows about two lines ({TITLE_CHARS} characters) and hides the rest.")
         theme = page.get("theme")
-        if theme is not None and not (isinstance(theme, str) and COLOR_RE.match(theme)):
+        if theme is not None and not is_color(theme):
             warnings.append(f"ERROR: Page {idx}: theme {theme!r} is not a colour. Use a hex code such as #b2c6b1 or a colour name.")
         blocks = page.get("blocks", [])
         if not blocks:

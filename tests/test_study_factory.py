@@ -137,12 +137,12 @@ class PlannerFactoryTests(unittest.TestCase):
         self.assertNotIn("Traceback", stderr.getvalue())
 
     def test_theme_must_be_a_colour(self):
-        for theme in ("red; display:none", "#fff\" onload=\"x", "url(javascript:evil)", 7):
+        for theme in ("red; display:none", "#fff\" onload=\"x", "url(javascript:evil)", 7, "banana", "#12345", "rgb(1)", "#b2c6b1 "):
             with self.subTest(theme=theme):
                 spec = self.load_example()
                 spec["pages"][0]["theme"] = theme
                 self.assertTrue(any("is not a colour" in f for f in study_factory.validate(spec)))
-        for theme in ("#b2c6b1", "#FFF", "rebeccapurple", "rgb(10, 20, 30)"):
+        for theme in ("#b2c6b1", "#FFF", "#80808080", "rebeccapurple", "Transparent", "rgb(10, 20, 30)", "rgba(10,20,30,.5)", "hsl(120deg 50% 50%)", "hsl(120 50% 50% / 0.5)"):
             with self.subTest(theme=theme):
                 spec = self.load_example()
                 spec["pages"][0]["theme"] = theme

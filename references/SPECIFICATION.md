@@ -31,7 +31,7 @@ python study_factory.py my-planner.json output.html
 | `label` | No | string | Page label, written to the page section as a `data-label` attribute. Defaults to the page title. |
 | `title` | No | string | Main page heading. |
 | `subtitle` | No | string | Short supportive explanation beneath the title. |
-| `theme` | No | CSS color | Header color: a hex code such as `#b2c6b1`, a color name, or an `rgb()`/`hsl()` value. Anything else is an error. Defaults to `#b2c6b1`. |
+| `theme` | No | CSS color | Header color: a hex code such as `#b2c6b1`, one of the CSS color names, or an `rgb()`/`hsl()` value with three numbers and an optional alpha. Anything else is an error. Defaults to `#b2c6b1`. |
 | `blocks` | Yes | array | Positioned content containers. |
 
 ## Block fields
