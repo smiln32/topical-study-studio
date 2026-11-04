@@ -113,12 +113,22 @@ are is in [`DECISIONS.md`](DECISIONS.md).
   each session out on the split recipe with row counts computed from the engine's height
   estimate, checks through `/api/validate`, previews through `/api/render` in a sandboxed
   frame, and downloads the finished HTML or the JSON. The form is saved in the browser.
-  `tests/test_study_starter.py` (eight checks, suite now forty-six) serves the page and, when
+  `tests/test_study_starter.py` (eight checks at first, twelve now) serves the page and, when
   Node is present as it is on CI's runner, builds a three-session sample with the page's own
   function and asserts the validator returns nothing. `DECISIONS.md` records why it is a
   page beside the Studio rather than a mode in it. The starter writes planner content types
   and quotes no Scripture, so it needs no notice. `README.md`, `HOW_IT_WORKS.md` and the
-  router describe it.
+  router describe it. Codex reviewed the commit the same day and returned seven findings, four
+  blocking, all closed on the branch: a session titled like its own discussion page collided
+  with it on concept (the concepts now carry "study" and "discussion" where a typed title
+  cannot reach); two sessions on one passage repeated the generated title and prompts (the
+  defaults now add the session number when a reference is shared, and an unedited default
+  counts as blank); a storage failure left the page saying Saving… (it now says Not saved and
+  tells the user to download the JSON); a 500 from the validator showed as a clean pass (the
+  page now checks the status and the payload's shape); a saved draft of the wrong shape
+  stopped the page loading (drafts are adopted field by field); page titles were forced
+  upper case against the design standard (casing is kept); and the specification display
+  fell back to a monospace face (it inherits). The suite is fifty checks.
 
 ## Next
 

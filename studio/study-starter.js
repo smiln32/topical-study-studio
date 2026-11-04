@@ -10,6 +10,8 @@ const CONTENT = { top: 104, bottom: 1030, left: 28, full: 760, half: 373, right:
 const HEAD_H = 32, BODY_TOP_PAD = 11, BORDER_W = 1.2, LINE_H = 22, CHECK_H = 24, PROMPT_H = 16;
 const MAX_WORDS = 10, MAX_QUESTIONS = 4;
 const COLOURS = ['sage', 'blue', 'lav', 'warm'];
+const AUTO = ['read', 'observe', 'interpret', 'apply', 'prayer'];
+const TEXT_KEYS = ['title', 'reference', 'words', 'intro', 'read', 'observe', 'interpret', 'apply', 'prayer', 'questions'];
 
 function bodyHeight(h) { return h - HEAD_H - BODY_TOP_PAD - 2 * BORDER_W; }
 function linesThatFit(h, hasPrompt) { return Math.max(1, Math.floor((bodyHeight(h) - (hasPrompt ? PROMPT_H : 0)) / LINE_H)); }
@@ -24,9 +26,10 @@ function list(s, max) { return String(s || '').split(/[,\n]/).map(clean).filter(
 function listLines(s, max) { return String(s || '').split('\n').map(clean).filter(Boolean).slice(0, max); }
 
 /* The wording the starter writes when a field is left blank. Each one carries the passage
-   reference, so the same field on two sessions never repeats a prompt. */
-function sessionDefaults(reference, n) {
-  const ref = clean(reference) || `the passage for session ${n}`;
+   reference, and the session number as well when another session has the same reference,
+   so the same field on two sessions never repeats a prompt. */
+function sessionDefaults(reference, n, shared) {
+  const ref = clean(reference) ? clean(reference) + (shared ? ` (session ${n})` : '') : `the passage for session ${n}`;
   return {
     read: `Read ${ref} twice in the NASB 2020, once silently and once aloud. Then write out, in your own hand, the verse that speaks most clearly to you.`,
     observe: `What does ${ref} say? Note every action, picture and repeated word before you decide what it means.`,
@@ -36,35 +39,53 @@ function sessionDefaults(reference, n) {
   };
 }
 
-function sessionPage(s, n, theme) {
+/* Which sessions share a reference with another session. */
+function sharedReferences(sessions) {
+  const counts = {};
+  sessions.forEach(s => { const r = clean(s.reference).toLowerCase(); if (r) counts[r] = (counts[r] || 0) + 1; });
+  return sessions.map(s => counts[clean(s.reference).toLowerCase()] > 1);
+}
+
+/* The defaults for session i of a list, and whether each auto field still holds its plain
+   default (the page copies defaults into the fields, so "left blank" means blank or unedited). */
+function defaultsFor(sessions, i) {
+  const s = sessions[i], n = i + 1, shared = sharedReferences(sessions)[i];
+  const plain = sessionDefaults(s.reference, n, false);
+  const d = sessionDefaults(s.reference, n, shared);
+  const value = {};
+  AUTO.forEach(k => { const v = clean(s[k]); value[k] = (!v || v === plain[k] || v === d[k]) ? d[k] : v; });
+  return { defaults: d, value, shared };
+}
+
+function sessionPage(sessions, i, theme) {
+  const s = sessions[i], n = i + 1;
+  const { value, shared } = defaultsFor(sessions, i);
   const ref = clean(s.reference);
-  const refOrSession = ref || `Session ${n}`;
-  const name = clean(s.title) || refOrSession;
-  const d = sessionDefaults(ref, n);
-  const text = clean(s.read) || d.read;
+  const refShown = ref ? ref + (shared ? ` (session ${n})` : '') : '';
+  const name = clean(s.title) || ref;
   const words = list(s.words, MAX_WORDS);
   const blocks = [
-    { x: CONTENT.left, y: 104, w: CONTENT.full, h: 150, title: ref ? `Read ${ref}` : `Session ${n} · Read the passage`, color: 'sage',
-      content: { type: 'callout', text, rows: calloutRows(150, text, CONTENT.full) } },
+    { x: CONTENT.left, y: 104, w: CONTENT.full, h: 150, title: refShown ? `Read ${refShown}` : `Session ${n} · Read the passage`, color: 'sage',
+      content: { type: 'callout', text: value.read, rows: calloutRows(150, value.read, CONTENT.full) } },
     { x: CONTENT.left, y: 268, w: CONTENT.half, h: 300, title: `Session ${n} · Observe`, color: 'blue',
-      content: { type: 'lines', prompt: clean(s.observe) || d.observe, rows: linesThatFit(300, true) } },
+      content: { type: 'lines', prompt: value.observe, rows: linesThatFit(300, true) } },
     words.length
       ? { x: CONTENT.right, y: 268, w: CONTENT.half, h: 300, title: `Session ${n} · Words to look up`, color: 'lav',
           content: { type: 'checklist', items: words, blank_rows: Math.max(0, checksThatFit(300) - words.length) } }
       : { x: CONTENT.right, y: 268, w: CONTENT.half, h: 300, title: `Session ${n} · Questions`, color: 'lav',
-          content: { type: 'lines', prompt: `Questions ${refOrSession} raises for me`, rows: linesThatFit(300, true) } },
+          content: { type: 'lines', prompt: `Questions ${refShown || `session ${n}`} raises for me`, rows: linesThatFit(300, true) } },
     { x: CONTENT.left, y: 582, w: CONTENT.full, h: 200, title: `Session ${n} · Interpret`, color: 'warm',
-      content: { type: 'lines', prompt: clean(s.interpret) || d.interpret, rows: linesThatFit(200, true) } },
+      content: { type: 'lines', prompt: value.interpret, rows: linesThatFit(200, true) } },
     { x: CONTENT.left, y: 796, w: CONTENT.full, h: 234, title: `Session ${n} · Apply`, color: 'sage',
       content: { type: 'split',
-        left: { type: 'lines', prompt: clean(s.apply) || d.apply, rows: linesThatFit(234, true) },
-        right: { type: 'lines', prompt: clean(s.prayer) || d.prayer, rows: linesThatFit(234, true) } } },
+        left: { type: 'lines', prompt: value.apply, rows: linesThatFit(234, true) },
+        right: { type: 'lines', prompt: value.prayer, rows: linesThatFit(234, true) } } },
   ];
   return {
     label: `Session ${n}`,
-    concept: `Session ${n}: ${name}`,
-    title: `SESSION ${n}: ${name.toUpperCase()}`,
-    subtitle: clean(s.intro) || `${refOrSession}. Read the whole passage before you begin.`,
+    concept: `Session ${n} study: ${name || 'untitled'}`,   // "study" and "discussion" sit where no typed title can reach
+    title: name ? `Session ${n}: ${name}` : `Session ${n}`,
+    subtitle: clean(s.intro) || `${ref || `Session ${n}`}. Read the whole passage before you begin.`,
     theme,
     blocks,
   };
@@ -84,8 +105,8 @@ function discussionPage(s, n, theme) {
   });
   return {
     label: `Session ${n} · Discuss`,
-    concept: `Session ${n}: Discuss ${ref}`,
-    title: `SESSION ${n}: DISCUSS`,
+    concept: `Session ${n} discussion: ${ref}`,
+    title: `Session ${n}: Discuss`,
     subtitle: `${ref}. Talk these through together, and go back to the text whenever you disagree.`,
     theme,
     blocks,
@@ -96,9 +117,10 @@ function buildStudySpec(form) {
   const title = clean(form.title) || 'Untitled study';
   const brand = clean(form.brand) || 'Simplify to Glorify';
   const theme = /^#[0-9a-f]{6}$/i.test(form.theme || '') ? form.theme : '#b2c6b1';
+  const sessions = Array.isArray(form.sessions) ? form.sessions.filter(s => s && typeof s === 'object') : [];
   const pages = [];
-  (form.sessions || []).forEach((s, i) => {
-    pages.push(sessionPage(s, i + 1, theme));
+  sessions.forEach((s, i) => {
+    pages.push(sessionPage(sessions, i, theme));
     const discuss = discussionPage(s, i + 1, theme);
     if (discuss) pages.push(discuss);
   });
@@ -112,37 +134,67 @@ function buildStudySpec(form) {
   };
 }
 
-if (typeof module !== 'undefined' && module.exports) module.exports = { buildStudySpec, sessionDefaults };
+if (typeof module !== 'undefined' && module.exports) module.exports = { buildStudySpec, sessionDefaults, defaultsFor };
 
 /* ---------------------------------------------------------------- the page */
 if (typeof document !== 'undefined') (function () {
   const $ = (s, el) => (el || document).querySelector(s), $$ = (s, el) => [...(el || document).querySelectorAll(s)];
   const KEY = 'studyStarter';
-  const AUTO = ['read', 'observe', 'interpret', 'apply', 'prayer'];
+  const NOT_SAVED = 'Not saved: the browser refused to store the draft. Download the JSON to keep your work.';
   let form, timer;
 
-  function freshSession() { return { title: '', reference: '', words: '', intro: '', read: '', observe: '', interpret: '', apply: '', prayer: '', questions: '', auto: AUTO.slice() }; }
+  function freshSession() {
+    const s = { auto: AUTO.slice() };
+    TEXT_KEYS.forEach(k => { s[k] = ''; });
+    return s;
+  }
   function fresh() {
     return { title: '', brand: 'Simplify to Glorify', audience: '', outcome: '', theme: '#b2c6b1', sessions: [freshSession()] };
   }
+  /* A saved draft is data from an earlier visit: take only the fields the form knows, as strings. */
+  function adopt(saved) {
+    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return null;
+    const f = fresh();
+    ['title', 'brand', 'audience', 'outcome', 'theme'].forEach(k => { if (typeof saved[k] === 'string') f[k] = saved[k]; });
+    const sessions = (Array.isArray(saved.sessions) ? saved.sessions : []).filter(s => s && typeof s === 'object' && !Array.isArray(s)).map(s => {
+      const t = freshSession();
+      TEXT_KEYS.forEach(k => { if (typeof s[k] === 'string') t[k] = s[k]; });
+      t.auto = Array.isArray(s.auto) ? s.auto.filter(k => AUTO.includes(k)) : AUTO.filter(k => !clean(t[k]));
+      return t;
+    });
+    if (sessions.length) f.sessions = sessions;
+    return f;
+  }
   function load() {
-    try { form = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch { form = fresh(); }
-    if (!Array.isArray(form.sessions) || !form.sessions.length) form.sessions = [freshSession()];
-    form.sessions.forEach(s => { if (!Array.isArray(s.auto)) s.auto = AUTO.filter(k => !clean(s[k])); });
+    let saved = null, raw = null;
+    try { raw = localStorage.getItem(KEY); } catch { raw = null; }
+    try { saved = raw ? JSON.parse(raw) : null; } catch { saved = null; }
+    form = adopt(saved) || fresh();
+    if (raw && !adopt(saved)) toast('The saved draft could not be read; starting fresh');
   }
   function save() {
     clearTimeout(timer);
     $('#saved').textContent = 'Saving…';
-    timer = setTimeout(() => { localStorage.setItem(KEY, JSON.stringify(form)); $('#saved').textContent = 'Saved locally'; }, 250);
+    timer = setTimeout(() => {
+      try { localStorage.setItem(KEY, JSON.stringify(form)); $('#saved').textContent = 'Saved locally'; }
+      catch { $('#saved').textContent = 'Not saved'; toast(NOT_SAVED); }
+    }, 250);
   }
-  function fillAuto(s, n) {
-    const d = sessionDefaults(s.reference, n);
-    s.auto.forEach(k => { s[k] = d[k]; });
+  /* Write every session's auto fields from its defaults and show them, without redrawing the form. */
+  function applyAuto() {
+    form.sessions.forEach((s, i) => {
+      const { defaults } = defaultsFor(form.sessions, i);
+      s.auto.forEach(k => {
+        s[k] = defaults[k];
+        const el = $(`#s${i + 1}-${k}`);
+        if (el && el.value !== s[k]) el.value = s[k];
+      });
+    });
   }
   function toast(msg) {
     const t = $('#toast');
     t.textContent = msg; t.classList.add('show');
-    clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+    clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 2600);
   }
   function slug(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'study'; }
   function spec() { return buildStudySpec(form); }
@@ -156,17 +208,15 @@ if (typeof document !== 'undefined') (function () {
     ol.innerHTML = '';
     form.sessions.forEach((s, i) => {
       const n = i + 1;
-      fillAuto(s, n);
       const li = $('#sessionRow').content.firstElementChild.cloneNode(true);
       $('.n', li).textContent = n;
       $$('[data-k]', li).forEach(el => {
         const k = el.dataset.k;
-        el.value = s[k] || '';
         el.id = `s${n}-${k}`;
         el.oninput = () => {
           s[k] = el.value;
           if (AUTO.includes(k)) s.auto = s.auto.filter(a => a !== k);
-          if (k === 'reference') { fillAuto(s, n); AUTO.forEach(a => { $(`[data-k="${a}"]`, li).value = s[a]; }); }
+          if (k === 'reference') applyAuto();
           save(); renderSpec();
         };
       });
@@ -181,35 +231,42 @@ if (typeof document !== 'undefined') (function () {
       $('[data-act="down"]', li).disabled = i === form.sessions.length - 1;
       ol.appendChild(li);
     });
+    applyAuto();
+    form.sessions.forEach((s, i) => { TEXT_KEYS.forEach(k => { const el = $(`#s${i + 1}-${k}`); if (el) el.value = s[k] || ''; }); });
   }
   function renderSpec() { $('#specView').textContent = JSON.stringify(spec(), null, 2); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]); }
   function showFindings(findings, valid) {
     const box = $('#findings');
     if (!findings.length) { box.innerHTML = '<p class="finding good">No findings. The study validates cleanly.</p>'; return; }
     box.innerHTML = (valid ? '<p class="finding">Warnings to read; nothing stops generation.</p>' : '')
       + findings.map(f => `<p class="finding ${f.startsWith('ERROR') ? 'bad' : ''}">${esc(f)}</p>`).join('');
   }
-  function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]); }
   const OFFLINE = 'The local generator is not running. Start it with python study_studio.py and open this page from there to check, preview and download the finished HTML. The JSON download works without it.';
 
   async function post(path) {
-    const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(spec()) });
-    return r;
+    return fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(spec()) });
+  }
+  async function payloadOf(r) {
+    try { return await r.json(); } catch { return {}; }
   }
   async function check() {
-    try {
-      const r = await (await post('/api/validate')).json();
-      showFindings(r.findings || [], r.valid);
-      return r;
-    } catch { showFindings([OFFLINE], false); return null; }
+    let r;
+    try { r = await post('/api/validate'); } catch { showFindings([OFFLINE], false); return null; }
+    const payload = await payloadOf(r);
+    if (!r.ok || !Array.isArray(payload.findings)) {
+      showFindings([`ERROR: The generator could not check the study (${payload.error || `it answered ${r.status}`}).`], false);
+      return null;
+    }
+    showFindings(payload.findings, !!payload.valid);
+    return payload;
   }
   async function rendered() {
     let r;
     try { r = await post('/api/render'); } catch { showFindings([OFFLINE], false); return null; }
     if (!r.ok) {
-      let payload = {};
-      try { payload = await r.json(); } catch { /* not JSON */ }
-      showFindings(payload.findings || [payload.error || `The generator answered ${r.status}.`], false);
+      const payload = await payloadOf(r);
+      showFindings(payload.findings || [`ERROR: ${payload.error || `The generator answered ${r.status}.`}`], false);
       return null;
     }
     return r.text();
@@ -220,19 +277,23 @@ if (typeof document !== 'undefined') (function () {
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
     toast(`${name} downloaded`);
   }
+  function clearAll() {
+    form = fresh();
+    renderStudy(); renderSessions(); renderSpec();
+    $('#findings').innerHTML = ''; $('#previewCard').hidden = true;
+    try { localStorage.removeItem(KEY); $('#saved').textContent = 'Saved locally'; toast('Cleared'); }
+    catch { $('#saved').textContent = 'Not saved'; toast('Cleared here, but the browser refused to forget the old draft; it may come back on refresh'); }
+  }
 
   load();
   renderStudy();
   renderSessions();
   renderSpec();
   ['title', 'brand', 'audience', 'outcome', 'theme'].forEach(k => {
-    $('#' + k).oninput = e => { form[k] = e.target.value; save(); renderSpec(); if (k === 'theme') $('#theme').value = form.theme; };
+    $('#' + k).oninput = e => { form[k] = e.target.value; save(); renderSpec(); };
   });
   $('#addSession').onclick = () => { form.sessions.push(freshSession()); renderSessions(); save(); renderSpec(); $(`#s${form.sessions.length}-reference`).focus(); };
-  $('#reset').onclick = () => {
-    if (!confirm('Clear every field and start over?')) return;
-    form = fresh(); localStorage.removeItem(KEY); renderStudy(); renderSessions(); renderSpec(); $('#findings').innerHTML = ''; $('#previewCard').hidden = true; toast('Cleared');
-  };
+  $('#reset').onclick = () => { if (confirm('Clear every field and start over?')) clearAll(); };
   $('#check').onclick = check;
   $('#preview').onclick = async () => {
     const html = await rendered();

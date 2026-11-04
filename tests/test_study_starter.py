@@ -85,13 +85,13 @@ class StudyStarterSpecTests(unittest.TestCase):
 
     def test_blank_fields_take_wording_that_names_the_passage(self):
         page = self.spec["pages"][2]
-        self.assertEqual(page["title"], "SESSION 2: AN EXAMPLE")
+        self.assertEqual(page["title"], "Session 2: An example")
         self.assertIn("1 Timothy 4:12-16", page["blocks"][1]["content"]["prompt"])
         self.assertEqual(page["blocks"][2]["title"], "Session 2 · Questions")
 
     def test_a_session_with_nothing_filled_in_still_lays_out(self):
         page = self.spec["pages"][3]
-        self.assertEqual(page["title"], "SESSION 3: SESSION 3")
+        self.assertEqual(page["title"], "Session 3")
         self.assertEqual(page["blocks"][0]["title"], "Session 3 · Read the passage")
 
     def test_every_page_reaches_the_fill_target_and_stays_inside_the_sheet(self):
@@ -101,6 +101,47 @@ class StudyStarterSpecTests(unittest.TestCase):
             for b in page["blocks"]:
                 self.assertGreaterEqual(b["x"], study_factory.CONTENT_LEFT)
                 self.assertLessEqual(b["x"] + b["w"], study_factory.CONTENT_RIGHT)
+
+    def test_a_title_that_reads_like_a_discussion_page_does_not_collide_with_one(self):
+        form = json.loads(json.dumps(SAMPLE))
+        form["sessions"] = [{"reference": "Psalm 23", "title": "Discuss Psalm 23", "questions": "What is a shepherd?"},
+                            {"reference": "Psalm 23", "title": "discussion: Psalm 23", "questions": "Who leads?"}]
+        spec = build_with_node(form)
+        concepts = [p["concept"] for p in spec["pages"]]
+        self.assertEqual(len(set(concepts)), 4, concepts)
+        self.assertEqual([f for f in study_factory.validate(spec) if f.startswith("ERROR")], [])
+
+    def test_two_sessions_on_the_same_passage_repeat_no_title_or_prompt(self):
+        form = json.loads(json.dumps(SAMPLE))
+        form["sessions"] = [{"reference": "Psalm 23"}, {"reference": "psalm 23"}, {"reference": "Psalm 24"}]
+        spec = build_with_node(form)
+        self.assertEqual(study_factory.validate(spec), [])
+        titles = [b["title"] for p in spec["pages"] for b in p["blocks"]]
+        self.assertEqual(len(titles), len(set(titles)), titles)
+        prompts = []
+        for p in spec["pages"]:
+            for b in p["blocks"]:
+                c = b["content"]
+                prompts += [c.get("prompt"), c.get("text")] + [c.get(side, {}).get("prompt") for side in ("left", "right")]
+        prompts = [x for x in prompts if x]
+        self.assertEqual(len(prompts), len(set(prompts)), prompts)
+        self.assertIn("(session 2)", spec["pages"][1]["blocks"][0]["title"])
+        self.assertNotIn("(session", spec["pages"][2]["blocks"][0]["title"])
+
+    def test_an_unedited_default_counts_as_blank_when_a_passage_is_shared(self):
+        plain = json.loads(subprocess.run(
+            ["node", "-e", "const m=require(process.argv[1]);process.stdout.write(JSON.stringify(m.sessionDefaults('Psalm 23',1,false)))",
+             str(ROOT / "studio" / "study-starter.js")], capture_output=True, text=True, encoding="utf-8", check=True).stdout)
+        form = json.loads(json.dumps(SAMPLE))
+        form["sessions"] = [dict(plain, reference="Psalm 23"), dict(plain, reference="Psalm 23", observe="My own question?")]
+        spec = build_with_node(form)
+        self.assertEqual(study_factory.validate(spec), [])
+        self.assertEqual(spec["pages"][1]["blocks"][1]["content"]["prompt"], "My own question?")
+        self.assertIn("(session 2)", spec["pages"][1]["blocks"][3]["content"]["prompt"])
+
+    def test_titles_keep_the_casing_they_were_typed_in(self):
+        self.assertEqual(self.spec["pages"][0]["title"], "Session 1: Chosen")
+        self.assertEqual(self.spec["pages"][1]["title"], "Session 1: Discuss")
 
     def test_too_many_words_and_questions_are_capped_not_overflowed(self):
         form = json.loads(json.dumps(SAMPLE))
