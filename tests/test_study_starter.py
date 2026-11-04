@@ -153,5 +153,29 @@ class StudyStarterSpecTests(unittest.TestCase):
         self.assertEqual(study_factory.validate(spec), [])
 
 
+@unittest.skipUnless(shutil.which("node"), "Node is not installed; the Studio's patterns are not checked here")
+class StudioPatternTests(unittest.TestCase):
+    def build(self):
+        source = (ROOT / "studio" / "app.js").read_text(encoding="utf-8")
+        part = source[source.index("const patterns="):source.index("function load()")]
+        script = part + ";process.stdout.write(JSON.stringify({fresh:fresh(),all:{set_title:'x',pages:library.map(page)},patterns:Object.keys(patterns),used:library.map(x=>x[2])}))"
+        done = subprocess.run(["node", "-e", script], capture_output=True, text=True, encoding="utf-8", check=True)
+        return json.loads(done.stdout)
+
+    def test_every_page_in_the_library_validates_with_no_findings(self):
+        built = self.build()
+        self.assertEqual(study_factory.validate(built["all"]), [])
+        self.assertEqual(study_factory.validate(built["fresh"]), [])
+
+    def test_every_pattern_is_in_the_library_once(self):
+        built = self.build()
+        self.assertEqual(sorted(built["patterns"]), sorted(built["used"]))
+
+    def test_nothing_in_the_studio_or_the_engine_speaks_of_planners(self):
+        for name in ("studio/app.js", "studio/index.html", "studio/study-starter.html", "studio/study-starter.js", "study_factory.py", "study_studio.py"):
+            with self.subTest(name=name):
+                self.assertNotIn("planner", (ROOT / name).read_text(encoding="utf-8").lower())
+
+
 if __name__ == "__main__":
     unittest.main()
