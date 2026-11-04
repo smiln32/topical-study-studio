@@ -2,7 +2,7 @@
 
 **Where am I?** In Topical Study Studio: software that turns a JSON specification into
 printable US Letter pages, printed to PDF from a browser. It builds planners today and is
-being turned into a tool for topical Bible studies. The study content types do not exist
+being turned into a tool for topical Bible studies. Most study content types do not exist
 yet, so until they do the stages build planners as written. `study_factory.py` is the
 engine, `studio/` is Topical Study Studio, the browser application, and `stages/` is the same
 build laid out as five folders an assistant can walk one at a time.

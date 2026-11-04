@@ -147,6 +147,10 @@ are is in [`DECISIONS.md`](DECISIONS.md).
   set, and warns when a set quotes Scripture with no notice. The study starter takes pasted text
   and a notice, and grows the block as the rows below shrink. No Scripture is in the repository;
   tests use placeholder text. The notice wording is not in the code: see item 0 under Next.
+  The suite is sixty-eight checks. The real form was also driven in headless Chrome by a
+  throwaway script, not kept in the repository: sixteen interactions passed with no page
+  errors, covering prompts, the check, reordering, preview, reload, Start over, a bad draft
+  and a refused save.
 
 ## Next
 
@@ -171,8 +175,7 @@ are is in [`DECISIONS.md`](DECISIONS.md).
    in its warnings file. The first is the better order; the plan exists so the engine can be
    changed for a real page list, not a list of guesses.
 2. **The study build**, in the order the Timothy plan demands:
-   a passage block (reference line, verse numbers, a place for the notice), which every one
-   of its twelve pages opens with; uniqueness per session rather than per set, since the
+   the passage block, built 2026-11-04 and now to be used on its twelve pages; uniqueness per session rather than per set, since the
    validator will refuse "Read the passage" twelve times; numbered discussion questions,
    which a led class needs on most pages; a memory-verse card; a timeline and a support
    map, each wanted once; and, not demanded by this plan but still expected, a
