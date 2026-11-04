@@ -106,9 +106,9 @@ class PassagePrintTests(unittest.TestCase):
 
 
 class EstimateAgreementTests(unittest.TestCase):
-    def test_the_basic_example_output_is_what_the_engine_draws_now(self):
-        spec = json.loads((ROOT / "shared/examples/basic/spec.json").read_text(encoding="utf-8"))
-        kept = (ROOT / "shared/examples/basic/output.html").read_text(encoding="utf-8")
+    def test_the_study_example_output_is_what_the_engine_draws_now(self):
+        spec = json.loads((ROOT / "shared/examples/study/spec.json").read_text(encoding="utf-8"))
+        kept = (ROOT / "shared/examples/study/output.html").read_text(encoding="utf-8")
         self.assertEqual(kept.replace("\r\n", "\n"), study_factory.render(spec).replace("\r\n", "\n"))
 
     def test_the_starter_and_the_engine_use_the_same_passage_measures(self):

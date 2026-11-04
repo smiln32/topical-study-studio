@@ -26,7 +26,7 @@ Run commands from the project root.
    python -c "import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" stages/03_spec/output/<slug>.json
    ```
 
-3. Generate the finished planner:
+3. Generate the finished study:
 
    ```bash
    python study_factory.py stages/03_spec/output/<slug>.json stages/05_export/output/<slug>.html
@@ -43,11 +43,11 @@ Run commands from the project root.
 
 | Artifact | Location | Format |
 |---|---|---|
-| The finished planner | `output/<slug>.html` | HTML, self-contained, ready to print to PDF |
+| The finished study | `output/<slug>.html` | HTML, self-contained, ready to print to PDF |
 | The editable project | `output/<slug>.json` | JSON, which Topical Study Studio can open again |
 
 ## Human gate
 
 The person prints the HTML to PDF and checks every page of it before treating the
-planner as finished. A planner about mental health, trauma, disability, medication or crisis
+study as finished. A study about mental health, trauma, disability, medication, grief, addiction or crisis
 is also reviewed by a qualified professional before publication. This is the end of the run.

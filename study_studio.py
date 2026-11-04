@@ -25,7 +25,7 @@ class Handler(SimpleHTTPRequestHandler):
             if self.path=='/api/validate': return self.send_json({'valid':valid,'findings':findings})
             if self.path=='/api/render':
                 if not valid: return self.send_json({'error':'Fix validation errors before exporting.','findings':findings},422)
-                body=study_factory.render(spec).encode(); self.send_response(200); self.send_header('Content-Type','text/html; charset=utf-8'); self.send_header('Content-Disposition','attachment; filename="planner.html"'); self.send_header('Content-Length',str(len(body))); self.end_headers(); return self.wfile.write(body)
+                body=study_factory.render(spec).encode(); self.send_response(200); self.send_header('Content-Type','text/html; charset=utf-8'); self.send_header('Content-Disposition','attachment; filename="study.html"'); self.send_header('Content-Length',str(len(body))); self.end_headers(); return self.wfile.write(body)
         except Exception as exc: return self.send_json({'error':'Could not generate: '+str(exc)},500)
         self.send_json({'error':'Not found'},404)
 def main():

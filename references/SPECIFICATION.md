@@ -1,27 +1,27 @@
-# Planner Specification Reference
+# Study Specification Reference
 
 Topical Study Studio reads a UTF-8 JSON document and renders each entry in `pages` as an editable 816 × 1056 px US Letter page.
 
 ## Create a starter file
 
 ```bash
-python study_factory.py --init my-planner.json --topic "Morning Routine"
+python study_factory.py --init my-study.json --topic "Psalm 23"
 ```
 
 Then validate and generate it:
 
 ```bash
-python study_factory.py my-planner.json output.html --validate-only
-python study_factory.py my-planner.json output.html
+python study_factory.py my-study.json output.html --validate-only
+python study_factory.py my-study.json output.html
 ```
 
 ## Top-level fields
 
 | Field | Required | Type | Purpose |
 |---|---:|---|---|
-| `set_title` | No | string | HTML document title. Defaults to `Planner Set`. |
-| `footer_label` | No | string | Left side of every page footer. Defaults to `Planner`. |
-| `pages` | Yes | array | Ordered list of planner pages. At least one page is required. |
+| `set_title` | No | string | HTML document title. Defaults to `Study`. |
+| `footer_label` | No | string | Left side of every page footer. Defaults to `Study`. |
+| `pages` | Yes | array | Ordered list of study pages. At least one page is required. |
 
 ## Page fields
 
@@ -61,7 +61,7 @@ All content objects accept `type`, which defaults to `lines`, and an optional sh
 Open writing space.
 
 ```json
-{"type": "lines", "prompt": "What feels most useful now?", "rows": 8}
+{"type": "lines", "prompt": "What does verse 3 say the shepherd does?", "rows": 8}
 ```
 
 `rows` defaults to `6`.
@@ -69,7 +69,7 @@ Open writing space.
 ### `checklist`
 
 ```json
-{"type": "checklist", "items": ["Drink water", "Choose one priority"], "blank_rows": 4}
+{"type": "checklist", "items": ["Shepherd", "Pastures"], "blank_rows": 4}
 ```
 
 `items` supplies labels; `blank_rows` adds unlabeled checkbox rows.
@@ -77,7 +77,7 @@ Open writing space.
 ### `choices`
 
 ```json
-{"type": "choices", "control": "radio", "options": ["Low", "Steady", "High"], "lines_after": 2}
+{"type": "choices", "control": "radio", "options": ["New to me", "Heard it", "Know it"], "lines_after": 2}
 ```
 
 `radio` creates one-choice circles; other `control` values use checkboxes. `lines_after` adds writing lines.
@@ -85,7 +85,7 @@ Open writing space.
 ### `callout`
 
 ```json
-{"type": "callout", "text": "Small progress still counts.", "rows": 4}
+{"type": "callout", "text": "Read the whole psalm before you begin.", "rows": 4}
 ```
 
 `text` supplies guidance and `rows` adds optional writing space.
@@ -113,8 +113,8 @@ Scripture quoted from the NASB 2020, the one translation the tool prints. The en
   "type": "table",
   "rows": 7,
   "columns": [
-    {"label": "Day", "width": "18%"},
-    {"label": "Energy", "width": "18%"},
+    {"label": "Reference", "width": "18%"},
+    {"label": "Who", "width": "18%"},
     {"label": "Notes"}
   ]
 }
@@ -127,8 +127,8 @@ Each column accepts `label` and an optional `width` as a percentage or `px`, `em
 ```json
 {
   "type": "split",
-  "left": {"type": "lines", "prompt": "More of", "rows": 5},
-  "right": {"type": "lines", "prompt": "Less of", "rows": 5}
+  "left": {"type": "lines", "prompt": "What the text says", "rows": 5},
+  "right": {"type": "lines", "prompt": "What it asks of me", "rows": 5}
 }
 ```
 
@@ -154,8 +154,7 @@ Errors, which stop generation, cover a missing or malformed `pages` list, page a
 
 ## Complete examples
 
-- [`shared/examples/basic/spec.json`](../shared/examples/basic/spec.json) — two-page introduction
-- [`shared/examples/depression/spec.json`](../shared/examples/depression/spec.json) — full planner
-- [`shared/planner_spec_template.json`](../shared/planner_spec_template.json) — reusable template
+- [`shared/examples/study/spec.json`](../shared/examples/study/spec.json) — one session of a study
+- [`shared/study_spec_template.json`](../shared/study_spec_template.json) — reusable template
 
 Also read [`CONTENT_GUIDE.md`](CONTENT_GUIDE.md) and [`DESIGN_STANDARD.md`](DESIGN_STANDARD.md).

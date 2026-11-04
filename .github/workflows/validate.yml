@@ -29,19 +29,19 @@ jobs:
       - name: Check CLI version and starter generation
         run: |
           python study_factory.py --version
-          python study_factory.py --init /tmp/starter.json --topic "Morning Routine"
+          python study_factory.py --init /tmp/starter.json --topic "Psalm 23"
           python study_factory.py /tmp/starter.json /tmp/starter.html --validate-only
 
-      - name: Validate example specification
-        run: python study_factory.py shared/examples/basic/spec.json /tmp/planner-output.html --validate-only
+      - name: Validate example study
+        run: python study_factory.py shared/examples/study/spec.json /tmp/study-output.html --validate-only
 
-      - name: Validate full depression specification
-        run: python study_factory.py shared/examples/depression/spec.json /tmp/depression-output.html --validate-only
+      - name: Validate study template
+        run: python study_factory.py shared/study_spec_template.json /tmp/template-output.html --validate-only
 
-      - name: Generate example planner
-        run: python study_factory.py shared/examples/basic/spec.json /tmp/planner-output.html
+      - name: Generate example study
+        run: python study_factory.py shared/examples/study/spec.json /tmp/study-output.html
 
       - name: Verify generated page structure
         run: |
-          grep -q 'width:816px;height:1056px' /tmp/planner-output.html
-          grep -q 'data-document-role="page"' /tmp/planner-output.html
+          grep -q 'width:816px;height:1056px' /tmp/study-output.html
+          grep -q 'data-document-role="page"' /tmp/study-output.html

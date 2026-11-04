@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Generate full-page, print-ready US Letter planner HTML from JSON.
+"""Generate full-page, print-ready US Letter study pages as HTML from JSON.
 
 The output uses ordinary HTML text, divs, borders, checkboxes, lines, and tables,
 so the pages print crisply from a browser and stay editable as HTML.
 
 Usage:
-    python study_factory.py planner_spec.json output.html
-    python study_factory.py planner_spec.json output.html --validate-only
+    python study_factory.py study_spec.json output.html
+    python study_factory.py study_spec.json output.html --validate-only
 """
 from __future__ import annotations
 
@@ -457,8 +457,8 @@ def validate(spec: dict[str, Any]) -> list[str]:
 
 
 def render(spec: dict[str, Any]) -> str:
-    set_title = e(spec.get("set_title", "Planner Set"))
-    footer_label = e(spec.get("footer_label", "Planner"))
+    set_title = e(spec.get("set_title", "Study"))
+    footer_label = e(spec.get("footer_label", "Study"))
     pages = []
     for idx, page in enumerate(spec.get("pages", []), start=1):
         theme = e(page.get("theme", "#b2c6b1"))
@@ -483,22 +483,22 @@ def render(spec: dict[str, Any]) -> str:
 
 
 def starter_spec(topic: str) -> dict[str, Any]:
-    topic = topic.strip() or "My"
+    topic = topic.strip() or "Untitled"
     return {
-        "set_title": f"{topic} Planner",
-        "footer_label": f"Simplify to Glorify | {topic} Planner",
+        "set_title": f"{topic} Study",
+        "footer_label": f"Simplify to Glorify | {topic} Study",
         "pages": [
             {
-                "label": "Daily focus",
-                "concept": "Choose one realistic priority",
-                "title": f"My {topic} Focus",
-                "subtitle": "A calm place to notice what matters and choose one next step.",
+                "label": "Session 1",
+                "concept": f"See what the passage says about {topic}",
+                "title": f"Session 1: {topic}",
+                "subtitle": "Name the passage here. Read all of it before you begin.",
                 "theme": "#b2c6b1",
                 "blocks": [
-                    {"x": 28, "y": 104, "w": 760, "h": 260, "title": "What matters today", "color": "sage", "content": {"type": "lines", "prompt": "A few words are enough.", "rows": 7}},
-                    {"x": 28, "y": 378, "w": 373, "h": 300, "title": "Helpful choices", "color": "blue", "content": {"type": "checklist", "items": ["One essential step", "One supportive step"], "blank_rows": 7}},
-                    {"x": 415, "y": 378, "w": 373, "h": 300, "title": "What may help", "color": "lav", "content": {"type": "lines", "rows": 9}},
-                    {"x": 28, "y": 692, "w": 760, "h": 338, "title": "One feasible next step", "color": "warm", "content": {"type": "lines", "prompt": "If it helps: If ___ happens, then I will ___.", "rows": 11}}
+                    {"x": 28, "y": 104, "w": 760, "h": 150, "title": "Read the passage", "color": "sage", "content": {"type": "callout", "text": "Read the passage twice in the NASB 2020, once silently and once aloud. Then write out the verse that speaks most clearly to you.", "rows": 3}},
+                    {"x": 28, "y": 268, "w": 373, "h": 300, "title": "Observe", "color": "blue", "content": {"type": "lines", "prompt": "What does the text say? Note every action and repeated word.", "rows": 10}},
+                    {"x": 415, "y": 268, "w": 373, "h": 300, "title": "Words to look up", "color": "lav", "content": {"type": "checklist", "items": ["First word", "Second word"], "blank_rows": 8}},
+                    {"x": 28, "y": 582, "w": 760, "h": 448, "title": "Interpret and apply", "color": "warm", "content": {"type": "split", "left": {"type": "lines", "prompt": "What did it mean to the people who first heard it?", "rows": 17}, "right": {"type": "lines", "prompt": "What does it ask of me this week?", "rows": 17}}}
                 ]
             }
         ]
@@ -506,12 +506,12 @@ def starter_spec(topic: str) -> dict[str, Any]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate and validate printable planner pages.")
-    parser.add_argument("spec", nargs="?", type=Path, help="Planner JSON specification")
+    parser = argparse.ArgumentParser(description="Generate and validate printable study pages.")
+    parser.add_argument("spec", nargs="?", type=Path, help="Study JSON specification")
     parser.add_argument("output", nargs="?", type=Path, help="Output HTML path")
     parser.add_argument("--validate-only", action="store_true", help="Validate without writing HTML")
     parser.add_argument("--init", dest="init_path", type=Path, metavar="PATH", help="Create a starter JSON specification")
-    parser.add_argument("--topic", default="My", help="Topic used with --init (default: My)")
+    parser.add_argument("--topic", default="Untitled", help="Topic used with --init (default: Untitled)")
     parser.add_argument("--version", action="version", version=f"%(prog)s {VERSION}")
     args = parser.parse_args()
 

@@ -1,0 +1,19 @@
+{
+  "set_title": "TOPIC Study",
+  "footer_label": "Simplify to Glorify | TOPIC Study",
+  "pages": [
+    {
+      "label": "Session 1",
+      "concept": "See what the passage says about TOPIC",
+      "title": "Session 1: SESSION TITLE",
+      "subtitle": "PASSAGE. Read the whole passage before you begin.",
+      "theme": "#b2c6b1",
+      "blocks": [
+        {"x": 28, "y": 104, "w": 760, "h": 150, "title": "Read PASSAGE", "color": "sage", "content": {"type": "callout", "text": "Read PASSAGE twice in the NASB 2020, once silently and once aloud. Then write out the verse that speaks most clearly to you.", "rows": 3}},
+        {"x": 28, "y": 268, "w": 373, "h": 300, "title": "Observe", "color": "blue", "content": {"type": "lines", "prompt": "What does the text say? Note every action, picture and repeated word.", "rows": 10}},
+        {"x": 415, "y": 268, "w": 373, "h": 300, "title": "Words to look up", "color": "lav", "content": {"type": "checklist", "items": ["First word", "Second word"], "blank_rows": 8}},
+        {"x": 28, "y": 582, "w": 760, "h": 448, "title": "Interpret and apply", "color": "warm", "content": {"type": "split", "left": {"type": "lines", "prompt": "What did it mean to the people who first heard it?", "rows": 17}, "right": {"type": "lines", "prompt": "What does it ask of me this week?", "rows": 17}}}
+      ]
+    }
+  ]
+}

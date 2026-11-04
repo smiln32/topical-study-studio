@@ -35,7 +35,7 @@ Stack rows top down. The next row's `y` is the previous row's `y + h + 14`.
 | Right | 415 | 268 | 373 | 300 | 568 |
 | Close | 28 | 582 | 760 | 448 | 1030 |
 
-This is `shared/planner_spec_template.json`. Every block is at least 180 x 92, and no two
+This is `shared/study_spec_template.json`. Every block is at least 180 x 92, and no two
 overlap, which is what the validator checks.
 
 ## Row counts that fit

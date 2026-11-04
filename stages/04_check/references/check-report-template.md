@@ -31,7 +31,8 @@ Where to look hardest: <the blocks with the most rows for their height, page and
 - [ ] Every writing area is large enough to use with a pen
 - [ ] No two blocks overlap and every corner is complete
 - [ ] Content reaches the lower part of the page without entering the footer
-- [ ] Every prompt is specific, answerable, kind, and used once in the set
+- [ ] Every prompt is specific, answerable from the text, and used once in the set
+- [ ] Every reference is right, and any quoted text is checked against the NASB 2020
 - [ ] The page count matches the brief: <count from the brief>
 - [ ] Sensitive-topic wording is present where the brief requires it
 

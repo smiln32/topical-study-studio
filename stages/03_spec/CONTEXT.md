@@ -1,6 +1,6 @@
 # 03_spec/CONTEXT.md: Layer 2 · Stage Contract
 
-**One job:** turn the plan into a planner specification that validates cleanly.
+**One job:** turn the plan into a study specification that validates cleanly.
 
 This stage writes the JSON file the engine reads. Layout and wording both happen here,
 because the validator judges them together.
@@ -15,7 +15,7 @@ because the validator judges them together.
 | 3 (reference) | Standard block positions on the grid | `references/layout-recipes.md` | Full file |
 | 3 (reference) | How a prompt should read | `../../references/CONTENT_GUIDE.md` | Prompt design, Content review checklist |
 | 3 (reference) | The visual rules a page must obey | `../../references/DESIGN_STANDARD.md` | Canvas and geometry, Required checks |
-| 3 (shared) | A specification to start from | `../../shared/planner_spec_template.json` | Full file |
+| 3 (shared) | A specification to start from | `../../shared/study_spec_template.json` | Full file |
 
 ## Process
 
@@ -28,8 +28,10 @@ Run commands from the project root.
 3. Write every prompt, section title, checklist item and option so that it is specific,
    answerable and used nowhere else in the set. Prefer the standard content types; do not use
    `custom_html` unless the plan names an interaction no type can express.
-4. Fill each page to y=980 or lower without crossing y=1030. Writing space is content.
-5. Validate, and fix every finding. A warning may stay only when fixing it would break the
+4. Quote Scripture only from text the person supplies, in a `passage` block. Never type a
+   verse from memory; where there is no text, tell the reader where to read.
+5. Fill each page to y=980 or lower without crossing y=1030. Writing space is content.
+6. Validate, and fix every finding. A warning may stay only when fixing it would break the
    plan; then write `output/<slug>.warnings.md` with the warning word for word and why it
    stays. Stage 04 reads that file. When validation is clean, delete any `<slug>.warnings.md`
    an earlier run left; when the warnings change, rewrite it so it matches the validator.

@@ -1,0 +1,26 @@
+{
+  "set_title": "Engine Test Study",
+  "footer_label": "Simplify to Glorify | Engine Test Study",
+  "pages": [
+    {
+      "title": "Session 1: Arrive",
+      "subtitle": "A short start before reading the passage.",
+      "theme": "#b2c6b1",
+      "blocks": [
+        {"x":28,"y":104,"w":760,"h":150,"title":"How familiar is this passage?","color":"sage","content":{"type":"choices","control":"radio","options":["New to me","Heard it","Know it","Teach it"],"lines_after":3}},
+        {"x":28,"y":268,"w":373,"h":300,"title":"Words to look up","color":"blue","content":{"type":"checklist","items":["First word","Second word","Third word","Fourth word"],"blank_rows":6}},
+        {"x":415,"y":268,"w":373,"h":300,"title":"What do I notice?","color":"lav","content":{"type":"lines","rows":10}},
+        {"x":28,"y":582,"w":760,"h":448,"title":"What I want to ask","color":"warm","content":{"type":"lines","rows":16}}
+      ]
+    },
+    {
+      "title": "Session 1: Cross-references",
+      "subtitle": "Where else the text speaks to this.",
+      "theme": "#c6b5c8",
+      "blocks": [
+        {"x":28,"y":104,"w":760,"h":810,"title":"Cross-reference table","color":"lav","content":{"type":"table","rows":12,"columns":[{"label":"Reference","width":"15%"},{"label":"Who","width":"10%"},{"label":"Where","width":"10%"},{"label":"Theme","width":"12%"},{"label":"Notes"}]}},
+        {"x":28,"y":928,"w":760,"h":102,"title":"Pattern I noticed","color":"sage","content":{"type":"lines","rows":2}}
+      ]
+    }
+  ]
+}

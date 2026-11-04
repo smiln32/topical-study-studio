@@ -11,12 +11,12 @@ htmlcov/
 .uv-cache/
 .uv-python/
 
-# Generated planner output
+# Generated study output
 *.generated.html
 /output/
 dist/
 
-# A stage's output is one planner run: the creator's work, not the product. The folders
+# A stage's output is one study run: the creator's work, not the product. The folders
 # stay, held by a .gitkeep, because a stage with no output folder is not a stage.
 stages/*/output/*
 !stages/*/output/.gitkeep

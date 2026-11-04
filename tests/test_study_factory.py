@@ -16,9 +16,9 @@ from study_studio import Handler
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class PlannerFactoryTests(unittest.TestCase):
+class StudyFactoryTests(unittest.TestCase):
     def load_example(self):
-        return json.loads((ROOT / "shared" / "examples" / "basic" / "spec.json").read_text(encoding="utf-8-sig"))
+        return json.loads((ROOT / "tests" / "fixtures" / "engine_spec.json").read_text(encoding="utf-8-sig"))
 
     def test_example_has_no_validation_findings(self):
         self.assertEqual(study_factory.validate(self.load_example()), [])
@@ -31,8 +31,8 @@ class PlannerFactoryTests(unittest.TestCase):
 
     def test_duplicate_concepts_are_errors(self):
         spec = self.load_example()
-        spec["pages"][0]["concept"] = "Daily focus"
-        spec["pages"][1]["concept"] = "Daily focus"
+        spec["pages"][0]["concept"] = "Read the passage"
+        spec["pages"][1]["concept"] = "Read the passage"
         findings = study_factory.validate(spec)
         self.assertTrue(any("repeat the same concept" in finding for finding in findings))
 
@@ -162,7 +162,7 @@ class PlannerFactoryTests(unittest.TestCase):
         block["content"] = {"type": "checklist", "items": [f"Checklist item {i}" for i in range(1, 31)]}
         block["h"] = 200
         findings = study_factory.validate(spec)
-        self.assertTrue(any("will not print" in f and "Basic care" in f for f in findings))
+        self.assertTrue(any("will not print" in f and "Words to look up" in f for f in findings))
         self.assertFalse(any(f.startswith("ERROR") for f in findings))
 
     def one_block_page(self, content, h):
@@ -232,9 +232,9 @@ class PlannerFactoryTests(unittest.TestCase):
         self.assertGreater(len(html), 1000)
 
     def test_starter_spec_is_valid_and_topic_aware(self):
-        spec = study_factory.starter_spec("Morning Routine")
+        spec = study_factory.starter_spec("Psalm 23")
         self.assertEqual(study_factory.validate(spec), [])
-        self.assertIn("Morning Routine", spec["set_title"])
+        self.assertIn("Psalm 23", spec["set_title"])
         self.assertEqual(len(spec["pages"]), 1)
 
     def test_version_is_semantic(self):

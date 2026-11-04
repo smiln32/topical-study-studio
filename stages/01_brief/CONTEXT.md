@@ -1,8 +1,8 @@
 # 01_brief/CONTEXT.md: Layer 2 · Stage Contract
 
-**One job:** write down what this planner is, before any page is chosen.
+**One job:** write down what this study is, before any page is chosen.
 
-Every later stage reads the brief, so a guess made here becomes a wrong planner four stages
+Every later stage reads the brief, so a guess made here becomes a wrong study four stages
 on. Ask; do not invent.
 
 ## Inputs
@@ -16,11 +16,11 @@ on. Ask; do not invent.
 
 ## Process
 
-1. Choose a short name for the run in lower case with hyphens, such as `morning-routine`.
+1. Choose a short name for the run in lower case with hyphens, such as `psalm-23`.
    It is the `<slug>` in every file name from here on.
 2. Copy `references/brief-template.md` to `output/<slug>.brief.md` and fill in every field.
-3. If the person has not said who the planner is for, what it should help them do, or how
-   many pages it has, ask. Leave a field marked `TO DECIDE` rather than fill it with a guess.
+3. If the person has not said who the study is for, what it should help them do, or how
+   many sessions and pages it has, ask. Leave a field marked `TO DECIDE` rather than fill it with a guess.
 4. If the topic touches mental health, trauma, disability, medication, grief, addiction or
    crisis, mark **Sensitive topic: yes** so every later stage carries the scope language and
    the set is flagged for professional review.

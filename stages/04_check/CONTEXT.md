@@ -1,6 +1,6 @@
 # 04_check/CONTEXT.md: Layer 2 · Stage Contract
 
-**One job:** find out whether the planner is fit to export. Change nothing.
+**One job:** find out whether the study is fit to export. Change nothing.
 
 The validator sees geometry, repetition and, by estimate, content too tall for its box. It
 cannot see a cramped writing area or a prompt that is not worth answering. This stage renders a proof and

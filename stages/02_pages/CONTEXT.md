@@ -1,6 +1,7 @@
 # 02_pages/CONTEXT.md: Layer 2 · Stage Contract
 
-**One job:** decide what each page is for, and put the pages in order.
+**One job:** choose the passages if the brief left them open, decide what each page is for, and
+put the pages in order.
 
 Nothing is laid out or worded here. A page is a concept, a thinking task, a response form
 and a composition, chosen so that no two pages do the same job.
@@ -13,7 +14,6 @@ and a composition, chosen so that no two pages do the same job.
 | 3 (reference) | The shape of a plan | `references/plan-template.md` | Full file |
 | 3 (reference) | How to vary pages and arc a set | `../../references/CONTENT_GUIDE.md` | One page one job, Page variety matrix, Recommended page arc |
 | 3 (reference) | Which compositions exist | `../../references/DESIGN_STANDARD.md` | Page composition |
-| 3 (reference) | A prompt for generating page ideas when the brief gives none | `references/planner-page-ideas.txt` | Full file |
 
 ## Process
 
@@ -23,8 +23,8 @@ and a composition, chosen so that no two pages do the same job.
 3. Give each page one thinking task and one response form from the variety matrix, and one
    composition from the design standard. No two adjacent pages share a response form or a
    composition silhouette.
-4. Order the pages so the set moves from arriving and noticing toward choosing, acting and
-   a gentle close.
+4. Order the pages so each session moves from the passage through observation and
+   interpretation to application, and the set closes with a response or a next step.
 5. Write the plan as `output/<slug>.plan.md` in the shape of the template. Say why each
    page is there, in one line, for the person reading it.
 6. If the brief marks a sensitive topic, name which page carries the scope and support note.
@@ -36,7 +36,7 @@ and a composition, chosen so that no two pages do the same job.
 | Page count | Equals the brief's count |
 | Concepts | All distinct, each a verb phrase |
 | Adjacent variety | No two neighbours share a response form or a composition |
-| Arc | First page is low effort; last page closes with agency, support or a next step |
+| Arc | First page opens on a passage at low effort; last page closes with a response, a prayer or a next step |
 
 ## Outputs
 

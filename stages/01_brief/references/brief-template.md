@@ -7,10 +7,12 @@ where the person has not said; do not guess.
 |---|---|
 | Slug | `<slug>` |
 | Set title | The title printed in the browser tab and used for the file names |
-| Footer label | Brand and set, such as `Simplify to Glorify \| Morning Routine Planner` |
-| Topic | One line: what the planner is about |
-| Who it is for | The person who will use it, in their own situation, not a diagnosis |
-| What it should help them do | One or two verbs: notice, choose, plan, track, reflect, act |
+| Footer label | Brand and set, such as `Simplify to Glorify \| Young and Trusted` |
+| Topic | One line: what the study is about |
+| Who it is for | The people who will use it, and whether alone or in a led class |
+| What it should help them do | The outcome, in the person's words if they gave any |
+| Passages | The passages to use, or `plan chooses` to leave them to stage 02 |
+| Sessions | How many, how long each, and how many pages each |
 | Page count | A whole number. The examples run from two to ten |
 | Tone | How it should read, in the person's words if they gave any |
 | Theme colour | A hex colour for the page header, or `default` for `#b2c6b1` |

@@ -1,4 +1,4 @@
-# Full-Page Planner Design Standard
+# Full-Page Study Design Standard
 
 ## Canvas and geometry
 
@@ -27,7 +27,7 @@
 
 ## Page composition
 
-Each page has one named `concept`. Choose a composition that expresses it: a tracker can be tabular; a decision can split; a sequence can step; a reflection can be spacious. Do not reuse the same block silhouette on adjacent pages. Rotate full-width, split, three-column, stepped, and asymmetric-but-aligned arrangements.
+Each page has one named `concept`. Choose a composition that expresses it: a cross-reference can be tabular; a comparison can split; a sequence can step; a prayer can be spacious. Do not reuse the same block silhouette on adjacent pages. Rotate full-width, split, three-column, stepped, and asymmetric-but-aligned arrangements.
 
 Read `CONTENT_GUIDE.md` before writing prompts. Use `custom_html` only when supported types cannot express the interaction.
 
@@ -39,4 +39,4 @@ Read `CONTENT_GUIDE.md` before writing prompts. Use `custom_html` only when supp
 - No repeated page concepts, section titles, or prompts.
 - Text fits at print size; writing areas are practically usable.
 - Correct page count verified in print preview.
-- Health-related content includes appropriate scope language and professional review before sale/publication.
+- A study on a sensitive subject includes appropriate scope language and professional review before publication.
