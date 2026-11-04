@@ -13,12 +13,18 @@ application. The brand already fits; STG is Simplify to Glorify. The study conte
 the per-session uniqueness rule and the study content guide are not built yet, so the stages
 build planners until they are, and `README.md` says what is planned and what is not.
 
+**It makes studies and nothing else.** Decided by the owner 2026-11-04. Planner support was
+removed: the examples, the template, the page-ideas prompt and the Studio's planner patterns are
+gone, and git history keeps them. The engine's block types stayed, because a study page uses all
+of them. Where this file speaks of planners below, it is recording what was true when that
+decision was made. The four pictures in `assets/design/` still show planner pages, and stay as
+the record of the approved look.
+
 **The product is Topical Study Studio.** Named by the owner 2026-10-31. The engine is
 `study_factory.py`, the server `study_studio.py`, and the browser application is the Studio.
 The names drop "planner" without binding the tool to one kind of study. The repository keeps
-its GitHub name until the owner renames it there, so every URL still works. The browser's
-saved-draft key in `studio/app.js` keeps its old value so that drafts made before the rename
-still open; it is never shown to a person.
+its GitHub name until the owner renames it there, so every URL still works. The browser's saved-draft key became `studyStudio` when planners were removed, so an old planner
+draft is left in the browser, unread and not overwritten.
 
 **Canva is gone; the deliverable is a printed PDF.** Decided by the owner 2026-10-31. The
 product began as a Canva import tool. Studies are sold and printed as PDF, so every Canva
@@ -44,7 +50,7 @@ shape. `CLAUDE.md` says where you are, `CONTEXT.md` routes, each stage's `CONTEX
 contract, `_config/`, `references/` and `shared/` hold what is stable, and each stage's
 `output/` holds what a run writes. Keep it so:
 
-- A new step in the planner build is a new numbered stage with its own contract,
+- A new step in the build is a new numbered stage with its own contract,
   `references/` and `output/`, not a script somewhere else.
 - New reference material goes in `_config/`, `references/`, `shared/` or a stage's own
   `references/`, not at the root.
@@ -90,7 +96,7 @@ ignored. The ignore rule became `/output/` so it no longer swallows the stages' 
 the specification's SHA-256 and stage 05 compares it before exporting, with a one-line
 standard-library command, so an edit after approval cannot be exported unnoticed.
 
-**A revision archives what it supersedes.** Before stage 02 or 03 runs again for a planner,
+**A revision archives what it supersedes.** Before stage 02 or 03 runs again for a study,
 each later stage's files for it move to `output/archive/<date>/`. Continuation looks only
 at `output/` itself, so a stale export cannot pass for progress, and nothing is deleted.
 
@@ -102,8 +108,8 @@ check; here stage 05's contract makes the same demand of the assistant. The cold
 
 **The study starter is a separate page beside the Studio, not a mode inside it.** Decided
 2026-11-04. The owner wanted the tool easier to use: a page to fill in the blanks. A study
-has a shape the Studio's planner blueprint does not (one page per passage, the same five
-sections every session), and the Studio's editor draws and edits only lines, checklists and
+wants one page per passage with the same five sections every session, which the Studio's
+blueprint does not lay out, and the Studio's editor draws and edits only lines, checklists and
 choices, while a study page wants a callout and a split. So `studio/study-starter.html`
 and `studio/study-starter.js` take the brand, the audience and one session per passage,
 lay the pages out on the split recipe with row counts computed from the engine's own

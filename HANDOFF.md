@@ -6,6 +6,9 @@ are is in [`DECISIONS.md`](DECISIONS.md).
 
 ## State
 
+**The product makes studies only, since 2026-11-04.** The entries below are a dated record; where
+one speaks of planners, examples or files that are now gone, it describes that day.
+
 - The repository lives at `github.com/smiln32/topical-study-studio`, public, created
   2026-10-30 as `stg-planner-pages` and renamed 2026-11-01; the old address redirects.
   `main` matches the remote and CI passed on it; `git log` carries the hash. No branch is
@@ -152,6 +155,19 @@ are is in [`DECISIONS.md`](DECISIONS.md).
   errors, covering prompts, the check, reordering, preview, reload, Start over, a bad draft
   and a refused save.
 
+- On 2026-11-04, on the branch `studies-only` stacked on `passage-block`, the owner's decision
+  "no planners" was carried out. Removed: the ADHD, basic and depression examples, the planner
+  template and the page-ideas prompt, all kept in git history. The engine tests read
+  `tests/fixtures/engine_spec.json`; `shared/study_spec_template.json` and `--init` write a study
+  session; CI validates the study example and template. The Studio has ten study patterns, each
+  held to the validator by a test, and drafts save under `studyStudio`, so an old planner draft
+  stays in the browser unread. `references/CONTENT_GUIDE.md` is now the study content guide. The
+  stages, references, chatbot prompt and root documents speak of studies, and stage 03 forbids
+  typing a verse from memory. The brief and plan of the vegetable-garden test run moved into
+  their stages' `output/archive/2026-11-01/`, on the owner's disk only. The suite is seventy-one
+  checks, and the real Studio and starter were driven in headless Chrome by throwaway scripts.
+  The Timothy brief and plan are untouched and still wait at the stage 02 gate.
+
 ## Next
 
 0. **Check the Scripture terms against the publisher's page; the owner decides.** Lockman's
@@ -183,18 +199,16 @@ are is in [`DECISIONS.md`](DECISIONS.md).
    `references/SPECIFICATION.md` and an example; a study content guide, observation then interpretation then application; a verse
    count in stage 04 that fails above 500 and reports the proportion of the work that is
    Scripture; the NASB 2020 notice printed by stage 05, with the wording copied from
-   lockman.org once; and a study example in `shared/examples/` to stand beside or replace the
-   wellness ones. `shared/examples/study/` is a start: one session on Psalm 23 built from the
+   lockman.org once; and a fuller study example in `shared/examples/`. `shared/examples/study/` is a start: one session on Psalm 23 built from the
    planner types, made 2026-11-01 as the source of the README image. It quotes no Scripture,
    so it needs no notice; a full study example still waits on the study types.
 3. **The page engine and the page standard disagree on two colours.**
    `references/DESIGN_STANDARD.md` gives block borders as `#606864` and rules as `#aeb7b2`;
    `study_factory.py` draws them `#5c5c5c` and `#b9b9b9`, and the Studio preview copies
    the engine. Change the standard or the engine, not the Studio. Changing the engine alters
-   every generated page and the approved reference HTML in `shared/examples/`, so if the
-   engine moves, regenerate those and look at them.
-4. **Small cosmetic items**, none blocking: `--init` without `--topic` titles the page
-   "My My Focus"; `study_studio.py` accepts `--host 0.0.0.0` with no authentication and
+   every generated page, so if the engine moves, regenerate `shared/examples/study/output.html`
+   and look at it.
+4. **A small item**, not blocking: `study_studio.py` accepts `--host 0.0.0.0` with no authentication and
    its help text does not say so.
 5. **Teach the Studio's editor the callout and split types.** `studio/app.js` draws and
    edits only lines, checklists and choices; a callout or a split shows as writing lines in
@@ -203,13 +217,7 @@ are is in [`DECISIONS.md`](DECISIONS.md).
    Studio** button that writes its specification to the Studio's saved draft, and the
    Studio's JSON download can stand in for the starter's. Until then the starter's JSON is
    edited by hand or taken through stage 03.
-6. **The depression example's custom markup still clips.** Every block in
-   `shared/examples/depression/spec.json` is `custom_html`, so the engine fix of 2026-11-04
-   deliberately leaves it alone and its pages are pixel-identical. Chrome shows 15 lines cut
-   across 24 of its 59 blocks that run past their box, and the validator cannot see inside
-   custom markup. Rewriting those blocks with standard types would fix it, and would change a
-   look the owner approved.
-7. **Decide on a per-passage accuracy tick.** The review of 2026-11-01 asked that, before the
+6. **Decide on a per-passage accuracy tick.** The review of 2026-11-01 asked that, before the
    first study quotes Scripture, stage 04 carry a line the author ticks per passage, "reference
    checked against the NASB 2020 text". That is accuracy, not doctrine, so it does not reopen
    the doctrinal-review decision; whether it goes in the contract is the owner's call.

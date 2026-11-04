@@ -1,6 +1,6 @@
 ---
 name: Topical Study Studio
-description: A professional working atelier for building customer-ready planner sets.
+description: A professional working atelier for building print-ready topical Bible studies.
 colors:
   ink: "#343a38"
   ink-soft: "#4d5551"
@@ -88,7 +88,7 @@ components:
   focus-ring:
     outline: "3px solid {colors.focus}"
     outlineOffset: "2px"
-  planner-block:
+  study-block:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
     rounded: "{rounded.container}"
@@ -101,13 +101,13 @@ components:
 
 **Creative North Star: "The Working Atelier"**
 
-Topical Study Studio is a professional work surface with the calm, material clarity of a well-run creative studio. The interface stays restrained so customer content and printable page previews remain visually dominant; color identifies tools, selection, page roles, and validation state rather than decorating empty space.
+Topical Study Studio is a professional work surface with the calm, material clarity of a well-run creative studio. The interface stays restrained so study content and printable page previews remain visually dominant; color identifies tools, selection, page roles, and validation state rather than decorating empty space.
 
 The product should feel deliberate without becoming precious. Dense editing controls are allowed when they accelerate real work, but the interface must progressively reveal advanced choices and keep the active page understandable at a glance. It explicitly rejects generic AI-generator styling, interchangeable dashboard decoration, unexplained automatic choices, and template-first experiences that erase the creator's judgment.
 
 **Key Characteristics:**
 
-- Restrained application chrome around a true-to-size planner preview.
+- Restrained application chrome around a true-to-size study preview.
 - Precise 14px layout rhythm carried from the page system into the editor.
 - Professional controls with creative color used for orientation and selection.
 - Flat, print-aware surfaces with strong borders and no decorative effects.
@@ -115,7 +115,7 @@ The product should feel deliberate without becoming precious. Dense editing cont
 
 ## Colors
 
-The Working Atelier palette pairs charcoal working ink with muted studio colors borrowed directly from the generated planner pages.
+The Working Atelier palette pairs charcoal working ink with muted studio colors borrowed directly from the generated study pages.
 
 ### Primary
 
@@ -145,25 +145,25 @@ The Working Atelier palette pairs charcoal working ink with muted studio colors 
 
 **The Orientation Rule.** Color groups and orients; it never fills space merely to make the interface feel creative.
 
-**The One Dominant Theme Rule.** A planner page carries one dominant theme color and only restrained supporting fills.
+**The One Dominant Theme Rule.** A study page carries one dominant theme color and only restrained supporting fills.
 
 ## Typography
 
 **Display Font:** Georgia (with Times New Roman and serif fallbacks)
 **Body Font:** Aptos (with Helvetica Neue, Arial, and sans-serif fallbacks)
 
-**Character:** Georgia gives planner titles an authored, printable voice. Aptos keeps the editing interface practical, compact, and familiar. No third family is introduced.
+**Character:** Georgia gives study titles an authored, printable voice. Aptos keeps the editing interface practical, compact, and familiar. No third family is introduced.
 
 ### Hierarchy
 
-- **Display** (700, 23px, 1.05): Planner-page titles inside the true-size preview only.
+- **Display** (700, 23px, 1.05): Study-page titles inside the true-size preview only.
 - **Hero** (700, 30 to 48px, 1.08): The one heading at the top of each flow screen.
 - **Headline** (700, 20px, 1.2): Workspace section headings.
 - **Title** (800, 16px, 1.3): Inspector section headings.
 - **Body** (400, 16px, 1.5): Instructions and descriptive copy, capped near 70 characters per line.
 - **Label** (700, 14px, 1.3): Form labels, tool names, and validation categories in sentence case.
 
-**The Two-Family Rule.** Georgia belongs to planner artifacts; Aptos belongs to the product interface. Never use Georgia for buttons, fields, navigation, or status text.
+**The Two-Family Rule.** Georgia belongs to study artifacts; Aptos belongs to the product interface. Never use Georgia for buttons, fields, navigation, or status text.
 
 **The Sentence-Case Rule.** Avoid tracked uppercase scaffolding. Short all-caps text is reserved for existing table headers where scan speed genuinely improves.
 
@@ -205,24 +205,24 @@ The system is flat by design. Depth comes from surface color, complete borders, 
 
 A compact workspace header holds project identity, undo/redo, save state, preview, and export. Page navigation is a labeled sequence rather than anonymous thumbnails. Active items combine Studio Sage Soft, Working Ink, and a clear current-page indicator. On narrow screens, editing panels move below the preview instead of shrinking controls below usable sizes.
 
-### Planner Canvas and Blocks
+### Study Canvas and Blocks
 
 The preview preserves the exact 816 × 1056 proportion. Blocks snap to a 3-unit grid with 14px gutters and remain inside x=28–788 and y=104–1030. Selection uses a crisp 4px Layout Slate outline and a visible resize handle in Focus Blue. Dragging announces the destination to assistive technology; keyboard users can move blocks between named grid slots and undo every change.
 
 ## Visual References
 
-Four pictures in `assets/design/` record how this direction was chosen and what it looks like. The tokens in this file's header are the source of truth; the pictures illustrate, they do not override. `tests/test_design_tokens.py` holds `studio/styles.css` to the colour tokens.
+Four pictures in `assets/design/` record how this direction was chosen and what it looks like. They date from when the product made studies, so they show study pages under the old name; they are kept for the look, not the content. The tokens in this file's header are the source of truth; the pictures illustrate, they do not override. `tests/test_design_tokens.py` holds `studio/styles.css` to the colour tokens.
 
 - [`direction-probes.png`](../assets/design/direction-probes.png): three candidate directions side by side, A Structured Canvas, B Working Atelier, C Guided Blueprint. B was chosen; A and C were rejected.
 - [`approved-editor-direction.png`](../assets/design/approved-editor-direction.png): the approved editor view, with the Brief, Blueprint, Editor and Review steps in the header, the pages rail, the true-size preview and the block inspector.
 - [`creative-working-atelier.png`](../assets/design/creative-working-atelier.png): the same direction at full density, with rulers, the page-pattern library, the creative-direction panel and validation beside the preview.
-- [`working-atelier-palette.png`](../assets/design/working-atelier-palette.png): the palette and type specimen, showing the eight studio colors with their values, Georgia for planner titles, Aptos for the interface, and the button, chip and focus states. Its type sizes and 24px gutters predate the tokens above, which win.
+- [`working-atelier-palette.png`](../assets/design/working-atelier-palette.png): the palette and type specimen, showing the eight studio colors with their values, Georgia for study titles, Aptos for the interface, and the button, chip and focus states. Its type sizes and 24px gutters predate the tokens above, which win.
 
 ## Do's and Don'ts
 
 ### Do:
 
-- **Do** keep the planner preview visually dominant and the application chrome restrained.
+- **Do** keep the study preview visually dominant and the application chrome restrained.
 - **Do** use 14px as the core layout rhythm and preserve exact printable safe areas.
 - **Do** pair every color-coded state with text, shape, or an icon.
 - **Do** explain recommendations and validation findings in creator language.

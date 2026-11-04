@@ -1,7 +1,7 @@
 # Current ICM Structural Audit
 
 **Audit date:** 2026-10-29
-**Scope:** the repository after the planner build was written down as five ICM stages.
+**Scope:** the repository after the build was written down as five ICM stages.
 **Standard:** Interpretable Context Methodology, Jake Van Clief and David McDermott,
 https://arxiv.org/abs/2603.16021, and the cold-agent walk used in the sibling workspace
 `cw-planner-factory`.
@@ -28,7 +28,7 @@ the stage folders including the gate rule, the commands, and the rules that are 
 
 ### 2. Can the agent determine where a task belongs?
 
-**PASS.** `CONTEXT.md` routes: making a planner, changing the tool and finding something out
+**PASS.** `CONTEXT.md` routes: making a study, changing the tool and finding something out
 each have named destinations. It does no work itself.
 
 ### 3. Can the agent determine how to execute a stage?
@@ -39,13 +39,13 @@ both.
 
 ### 4. Does each stage do one job?
 
-**PASS.** Brief decides what the planner is. Pages decides what each page is for. Spec
+**PASS.** Brief decides what the study is. Pages decides what each page is for. Spec
 writes the file and makes it validate. Check judges and changes nothing. Export writes the
 files and decides nothing.
 
 ### 5. Do stages hand over through plain files?
 
-**PASS.** Markdown and JSON between every stage. The proof and the finished planner are HTML,
+**PASS.** Markdown and JSON between every stage. The proof and the finished study are HTML,
 which is text. No binary passes between stages.
 
 ### 6. Is every output an edit surface?
@@ -75,7 +75,7 @@ sections of `HOW_IT_WORKS.md` rather than repeat them.
 ### 10. Do the stages match the product?
 
 **PASS.** The five stages are the five things a creator does in Topical Study Studio in the same
-order: say what the planner is, choose the pages, write and lay them out, check, export.
+order: say what the study is, choose the pages, write and lay them out, check, export.
 
 ### 11. Are the gates real?
 
@@ -122,3 +122,12 @@ from `HANDOFF.md`.
 The product was renamed Topical Study Studio and the engine, server and test file took the
 `study_` prefix. No folder moved. The walk was repeated: every layer and every question above
 holds, every path a contract names exists, and `tests/test_stages.py` passes.
+
+## Re-walk, 2026-11-04
+
+The product became studies only. The planner examples, the planner template and the page-ideas
+prompt were removed; `shared/` now holds `study_spec_template.json`, `examples/study/` and the
+chatbot prompt. No stage folder moved. The walk was repeated: every layer and every question
+above holds, every path a contract names exists, and `tests/test_stages.py` passes. The
+cold-agent walk of 2026-11-01 ran on a planner, before this change; a fresh walk on a study has
+not been made.

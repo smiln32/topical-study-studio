@@ -1,11 +1,10 @@
 # Instructions for Claude
 
-**Where am I?** In Topical Study Studio: software that turns a JSON specification into
-printable US Letter pages, printed to PDF from a browser. It builds planners today and is
-being turned into a tool for topical Bible studies. Most study content types do not exist
-yet, so until they do the stages build planners as written. `study_factory.py` is the
-engine, `studio/` is Topical Study Studio, the browser application, and `stages/` is the same
-build laid out as five folders an assistant can walk one at a time.
+**Where am I?** In Topical Study Studio: software that makes topical Bible studies, turning a
+specification into printable US Letter pages, printed to PDF from a browser. It makes studies
+and nothing else. `study_factory.py` is the engine, `studio/` holds the Studio and the study
+starter, the browser applications, and `stages/` is the same build laid out as five folders an
+assistant can walk one at a time.
 
 This workspace follows the Interpretable Context Methodology (ICM) of Jake Van Clief and
 David McDermott (https://arxiv.org/abs/2603.16021). This file is Layer 0. [`CONTEXT.md`](CONTEXT.md)
@@ -70,7 +69,7 @@ syntax yourself. There is no linter or formatter; do not add one without asking.
   explains them. Change both or neither.
 - **`study_studio.py` and `studio/app.js` are dense on purpose**, semicolon-joined and
   one-line. Do not reformat them.
-- **Sensitive topics.** A planner or study about mental health, trauma, disability,
+- **Sensitive topics.** A study about mental health, trauma, disability,
   medication, grief, addiction or crisis is flagged for professional review before
   publication. Every stage says so.
 - **Scripture is the NASB 2020 only.** Quote from the New American Standard Bible 2020 (The
