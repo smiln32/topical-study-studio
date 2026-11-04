@@ -90,6 +90,22 @@ Open writing space.
 
 `text` supplies guidance and `rows` adds optional writing space.
 
+### `passage`
+
+Scripture quoted from the NASB 2020, the one translation the tool prints. The engine adds the translation's name beside the reference.
+
+```json
+{
+  "type": "passage",
+  "reference": "Psalm 23:1-3",
+  "verses": [{"number": 1, "text": "Text of the verse."}, {"number": 2, "text": "Text of the next verse."}],
+  "notice": "The publisher's copyright notice, copied from lockman.org.",
+  "rows": 0
+}
+```
+
+`reference` and `verses` are required, and each verse needs a whole `number` and its `text`. `notice` prints under the text; a set that quotes Scripture with no notice draws a warning, since the notice may be printed elsewhere in the work. `rows` adds writing lines. A set quoting more than 500 verses is an error. A verse quoted twice counts twice.
+
 ### `table`
 
 ```json
@@ -128,7 +144,7 @@ HTML is inserted without escaping. Use only trusted specifications. The author i
 
 ## Validation
 
-Errors, which stop generation, cover a missing or malformed `pages` list, page and block shape, numeric geometry, safe-area bounds, minimum block size, overlaps, unknown content types, row counts that are not whole numbers from 0 to 200, malformed table columns, themes that are not colours, widths that are not lengths, and repeated concepts. Warnings, which do not, cover a page with no blocks, an underfilled page, repeated section titles, repeated prompts, content estimated taller than its block, a title longer than the header shows, and neighbouring blocks closer than 14 px.
+Errors, which stop generation, cover a missing or malformed `pages` list, page and block shape, numeric geometry, safe-area bounds, minimum block size, overlaps, unknown content types, row counts that are not whole numbers from 0 to 200, malformed table columns, themes that are not colours, widths that are not lengths, and repeated concepts, a malformed passage, and more than 500 quoted verses. Warnings, which do not, cover a page with no blocks, an underfilled page, repeated section titles, repeated prompts, content estimated taller than its block, a title longer than the header shows, neighbouring blocks closer than 14 px, and quoted Scripture with no notice.
 
 | Exit code | Meaning |
 |---:|---|

@@ -20,7 +20,8 @@ import study_factory  # noqa: E402
 
 MEASURE = """<script>addEventListener('load',()=>{const out=[];document.querySelectorAll('.box').forEach(b=>{
 const edge=b.getBoundingClientRect().bottom;const ls=[...b.querySelectorAll('.line')].map(l=>l.getBoundingClientRect());
-out.push({title:b.querySelector('.head').textContent,lines:ls.length,cut:ls.filter(l=>l.bottom>edge-1).length,
+let reach=0;b.querySelectorAll('.body *').forEach(e=>{reach=Math.max(reach,e.getBoundingClientRect().bottom)});
+out.push({title:b.querySelector('.head').textContent,lines:ls.length,cut:ls.filter(l=>l.bottom>edge-1).length,overflow:Math.max(0,Math.ceil(reach-edge)),
 smallest:ls.length?Math.min(...ls.map(l=>l.height)):null})});
 const d=document.createElement('pre');d.id='RESULT';d.textContent=JSON.stringify(out);document.body.appendChild(d)})</script>"""
 

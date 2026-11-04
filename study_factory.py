@@ -65,6 +65,11 @@ html,body{margin:0;padding:0;background:#ececec;font-family:"Aptos","Helvetica N
 .body>.custom{flex:1 1 0;min-height:0}
 .label{font-size:9.5px;font-weight:700;margin-bottom:4px}
 .small{font-size:8.5px;color:#555}.callout{font-size:10px;line-height:1.35}
+.passage-ref{display:flex;justify-content:space-between;gap:12px;font-size:10.5px;font-weight:700;margin-bottom:4px}
+.passage-translation{font-size:8.5px;font-weight:400;color:#555;white-space:nowrap}
+.passage-text{font-size:11px;line-height:1.4}
+.passage-text sup{font-size:8.5px;font-weight:700;line-height:0;margin-right:2px}
+.passage-notice{font-size:8.5px;line-height:1.25;color:#555;margin-top:4px}
 .table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:8px}
 .table th,.table td{border:1px solid #7f7f7f;padding:4px;vertical-align:top}
 .table th{background:#f5f5f5;font-weight:800;text-transform:uppercase;text-align:center}
@@ -125,6 +130,18 @@ def render_content(content: dict[str, Any]) -> str:
         rows = int(content.get("rows", 0))
         callout = f'<div class="callout">{e(text)}</div>'
         return prefix + callout + (f'<div class="grid-lines" style="--rows:{rows}">{line_html(rows)}</div>' if rows else "")
+
+    if kind == "passage":
+        verses = "".join(f'<sup>{e(v["number"])}</sup>{e(v["text"])} ' for v in content.get("verses", []))
+        notice = content.get("notice")
+        rows = int(content.get("rows", 0))
+        return (
+            prefix
+            + f'<div class="passage-ref"><span>{e(content.get("reference", ""))}</span><span class="passage-translation">{e(SCRIPTURE_TRANSLATION)}</span></div>'
+            + f'<div class="passage-text">{verses}</div>'
+            + (f'<div class="passage-notice">{e(notice)}</div>' if notice else "")
+            + (f'<div class="grid-lines" style="--rows:{rows}">{line_html(rows)}</div>' if rows else "")
+        )
 
     if kind == "table":
         columns = content.get("columns", [])
@@ -200,9 +217,11 @@ def validate_uniqueness_and_collisions(spec: dict[str, Any]) -> list[str]:
                 elif (dx < 0 or dy < 0) and max(dx, dy) < GAP:
                     findings.append(f"Page {page_no}, blocks {a} and {b} are {max(dx, dy)}px apart; the standard gap is {GAP}px.")
     return findings
-CONTENT_TYPES = ("lines", "checklist", "choices", "callout", "table", "split", "custom_html")
+CONTENT_TYPES = ("lines", "checklist", "choices", "callout", "passage", "table", "split", "custom_html")
+SCRIPTURE_TRANSLATION = "NASB 2020"  # the one translation quoted; CLAUDE.md, so a block cannot name another
+MAX_VERSES = 500  # the owner's limit for one work; DECISIONS.md
 # The count field each content type reads; split and custom_html read none.
-COUNT_FIELDS = {"lines": "rows", "checklist": "blank_rows", "choices": "lines_after", "callout": "rows", "table": "rows"}
+COUNT_FIELDS = {"lines": "rows", "checklist": "blank_rows", "choices": "lines_after", "callout": "rows", "passage": "rows", "table": "rows"}
 MAX_COUNT = 200  # more rows than any page can hold
 CSS_COLOR_NAMES = frozenset("""aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown
 burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray
@@ -235,6 +254,7 @@ LENGTH_RE = re.compile(r"^\d+(\.\d+)?(%|px|em|rem)$")
 # still print; past it, the box cuts it off. Row heights were measured in Chrome.
 HEAD_H, BODY_TOP_PAD, BORDER_W, LINE_H, CHECK_H, TABLE_ROW_H, TABLE_HEAD_H, PROMPT_H, PILL_H = 32, 11, 1.2, 22, 24, 31, 21, 16, 14
 TITLE_CHARS = 90
+PASSAGE_REF_H, PASSAGE_CHAR_W, PASSAGE_LINE_H, NOTICE_CHAR_W, NOTICE_LINE_H = 20, 5.6, 15.4, 4.4, 10.7
 
 
 def is_count(value: Any) -> bool:
@@ -262,6 +282,13 @@ def estimate_content_height(content: Any, width: int) -> float:
     elif kind == "callout":
         chars_per_line = max(20, (width - 2 * 13) // 5)
         total += -(-len(str(content.get("text", ""))) // chars_per_line) * 14 + _count(content, "rows", 0) * LINE_H
+    elif kind == "passage":
+        verses = content.get("verses", [])
+        chars = sum(len(str(v.get("text", ""))) + len(str(v.get("number", ""))) + 1 for v in verses if isinstance(v, dict)) if isinstance(verses, list) else 0
+        notice = str(content.get("notice") or "")
+        inner = width - 2 * 13
+        total += PASSAGE_REF_H + -(-chars // int(inner / PASSAGE_CHAR_W)) * PASSAGE_LINE_H + _count(content, "rows", 0) * LINE_H
+        if notice: total += 4 + -(-len(notice) // int(inner / NOTICE_CHAR_W)) * NOTICE_LINE_H
     elif kind == "table": total += TABLE_HEAD_H + _count(content, "rows", 10) * TABLE_ROW_H
     elif kind == "split":
         default = {"type": "lines", "rows": 5}  # what render_content draws for a missing side
@@ -281,6 +308,26 @@ def uses_custom_html(spec: Any) -> bool:
         for page in spec["pages"] if isinstance(page, dict) and isinstance(page.get("blocks"), list)
         for block in page["blocks"] if isinstance(block, dict)
     )
+
+
+def passages(spec: Any) -> list[dict[str, Any]]:
+    """Every passage content object in a set, including either side of a split."""
+    found: list[dict[str, Any]] = []
+    def walk(content: Any) -> None:
+        if not isinstance(content, dict): return
+        if content.get("type") == "passage": found.append(content)
+        for side in ("left", "right"): walk(content.get(side))
+    if isinstance(spec, dict) and isinstance(spec.get("pages"), list):
+        for page in spec["pages"]:
+            if isinstance(page, dict) and isinstance(page.get("blocks"), list):
+                for block in page["blocks"]:
+                    if isinstance(block, dict): walk(block.get("content"))
+    return found
+
+
+def count_verses(spec: Any) -> int:
+    """Verses quoted across a set. A verse quoted twice counts twice, which errs on the safe side."""
+    return sum(len(p["verses"]) for p in passages(spec) if isinstance(p.get("verses"), list))
 
 
 def validate_shape(spec: Any) -> list[str]:
@@ -317,6 +364,23 @@ def validate_content(content: Any, where: str) -> list[str]:
     for field in ("items", "options"):
         if field in content and not isinstance(content[field], list):
             findings.append(f'ERROR: {where}: "{field}" must be a list.')
+    if kind == "passage":
+        reference = content.get("reference")
+        if not (isinstance(reference, str) and reference.strip()):
+            findings.append(f'ERROR: {where}: a passage needs a "reference", such as "Psalm 23:1-3".')
+        verses = content.get("verses")
+        if not (isinstance(verses, list) and verses):
+            findings.append(f'ERROR: {where}: a passage needs "verses", a list of objects each with a "number" and "text".')
+        else:
+            for k, verse in enumerate(verses, 1):
+                number = verse.get("number") if isinstance(verse, dict) else None
+                text = verse.get("text") if isinstance(verse, dict) else None
+                if not ((isinstance(number, int) and not isinstance(number, bool) and number > 0) or (isinstance(number, str) and number.isdigit() and int(number) > 0)):
+                    findings.append(f'ERROR: {where}: verse {k} needs a "number", a whole number above 0.')
+                if not (isinstance(text, str) and text.strip()):
+                    findings.append(f'ERROR: {where}: verse {k} needs its "text".')
+        if "notice" in content and not isinstance(content["notice"], str):
+            findings.append(f'ERROR: {where}: "notice" must be text.')
     if kind == "table":
         columns = content.get("columns", [])
         if not isinstance(columns, list) or not all(isinstance(c, dict) for c in columns):
@@ -384,6 +448,11 @@ def validate(spec: dict[str, Any]) -> list[str]:
                 f"Page {idx}: content stops at {max(bottoms)}px; extend it to at least {FILL_TARGET}px so the page feels full."
             )
     warnings.extend(validate_uniqueness_and_collisions(spec))
+    quoted = count_verses(spec)
+    if quoted > MAX_VERSES:
+        warnings.append(f"ERROR: This set quotes {quoted} verses; one work may quote at most {MAX_VERSES}.")
+    if passages(spec) and not any(isinstance(p.get("notice"), str) and p["notice"].strip() for p in passages(spec)):
+        warnings.append(f'This set quotes Scripture and prints no copyright notice. Give a passage a "notice", copied from the publisher, or print it elsewhere in the work.')
     return warnings
 
 

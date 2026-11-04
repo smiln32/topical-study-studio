@@ -4,7 +4,7 @@
 
 Topical Study Studio turns a JSON specification into printable US Letter pages. It renders print-ready HTML at exactly 816 × 1056 pixels, validates the layout and the wording, and a browser prints the result to PDF.
 
-It was built for wellness planners and is being turned into a tool for **topical Bible studies**: a study is a set of sessions, each a few pages that take the reader through a passage and into application. The engine, the validator, Topical Study Studio and the five-stage build all carry over. The study-specific pieces, listed under [Where it is going](#where-it-is-going), do not exist yet, so the tool builds planners exactly as documented here until they do.
+It was built for wellness planners and is being turned into a tool for **topical Bible studies**: a study is a set of sessions, each a few pages that take the reader through a passage and into application. The engine, the validator, Topical Study Studio and the five-stage build all carry over. The `passage` block and the study starter exist; the other study-specific pieces, listed under [Where it is going](#where-it-is-going), do not yet.
 
 Each page is designed around one clear concept, with response formats and layouts chosen to match its purpose.
 
@@ -24,8 +24,8 @@ Each page is designed around one clear concept, with response formats and layout
 
 The next product is a topical Bible study: six or so sessions on one subject, printed as a PDF for individual or small-group use. What that needs, none of it built yet:
 
-- **Scripture from the NASB 2020** (New American Standard Bible, The Lockman Foundation). Up to 500 verses may be quoted in one work under the publisher's gratis-use policy, and the copyright notice cites 2020 only. The check stage will count verses and the export will print the notice.
-- **Study content types:** a passage with observation space, a cross-reference table, a memory-verse card, numbered discussion questions, and a prayer page.
+- **Scripture from the NASB 2020** (New American Standard Bible, The Lockman Foundation). The `passage` block and a limit of 500 verses in one work exist. The check stage will report the count and export will print the notice.
+- **Study content types:** a cross-reference table, a memory-verse card, numbered discussion questions, and a prayer page.
 - **A session structure that repeats by design**, so the validator's uniqueness rules apply within a session rather than across the whole set.
 - **A content guide for studies:** observation, interpretation, application, in that order, with questions that send the reader back to the text.
 
@@ -52,7 +52,7 @@ Studio features include blueprint recommendations, page sequencing, a full-page 
 
 For a Bible study, the quickest way in is the **study starter** at `http://127.0.0.1:8765/study-starter.html`, also linked from the Studio's brief page. Fill in the study title, the brand for the footer, and one session per passage: the reference, a title, words to look up, and the observe, interpret, apply and prayer prompts, which the starter fills with wording that names the passage when you leave them blank. Up to four discussion questions give a session a second page. The starter lays out one page per session with today's content types on the standard grid, checks it with the same validator, previews every page at true size, and downloads the finished HTML or the specification as JSON. The JSON download needs no server; checking, preview and the finished HTML need the Studio running.
 
-The starter quotes no Scripture. It tells the reader where to read, so the pages it writes need no copyright notice.
+Without passage text, a page tells the reader where to read and quotes nothing. Paste NASB 2020 text into a session and the page prints it with verse numbers; the block grows to fit and the rows below give up the height. Quoted text needs the publisher's notice, which you copy from lockman.org into the form.
 
 Create a topic-aware starter specification:
 
@@ -121,6 +121,7 @@ See [`shared/planner_spec_template.json`](shared/planner_spec_template.json) and
 - `checklist` — predefined and blank checklist items
 - `choices` — radio-style or checkbox-style choices
 - `callout` — short guidance followed by optional writing lines
+- `passage` — quoted NASB 2020 Scripture with a reference line, verse numbers and a place for the notice
 - `table` — structured trackers and logs
 - `split` — two related response areas
 - `custom_html` — an advanced escape hatch for layouts not covered by the standard types

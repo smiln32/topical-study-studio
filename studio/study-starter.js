@@ -8,10 +8,12 @@
 const STARTER_VERSION = 1;
 const CONTENT = { top: 104, bottom: 1030, left: 28, full: 760, half: 373, right: 415, gap: 14 };
 const HEAD_H = 32, BODY_TOP_PAD = 11, BORDER_W = 1.2, LINE_H = 22, CHECK_H = 24, PROMPT_H = 16;
+const PASSAGE_REF_H = 20, PASSAGE_CHAR_W = 5.6, PASSAGE_LINE_H = 15.4, NOTICE_CHAR_W = 4.4, NOTICE_LINE_H = 10.7;
+const MIN_ROW_H = 110;
 const MAX_WORDS = 10, MAX_QUESTIONS = 4;
 const COLOURS = ['sage', 'blue', 'lav', 'warm'];
 const AUTO = ['read', 'observe', 'interpret', 'apply', 'prayer'];
-const TEXT_KEYS = ['title', 'reference', 'words', 'intro', 'read', 'observe', 'interpret', 'apply', 'prayer', 'questions'];
+const TEXT_KEYS = ['title', 'reference', 'passage', 'words', 'intro', 'read', 'observe', 'interpret', 'apply', 'prayer', 'questions'];
 
 function bodyHeight(h) { return h - HEAD_H - BODY_TOP_PAD - 2 * BORDER_W; }
 function linesThatFit(h, hasPrompt) { return Math.max(1, Math.floor((bodyHeight(h) - (hasPrompt ? PROMPT_H : 0)) / LINE_H)); }
@@ -24,6 +26,28 @@ function calloutRows(h, text, w) {
 function clean(s) { return String(s || '').replace(/\s+/g, ' ').trim(); }
 function list(s, max) { return String(s || '').split(/[,\n]/).map(clean).filter(Boolean).slice(0, max); }
 function listLines(s, max) { return String(s || '').split('\n').map(clean).filter(Boolean).slice(0, max); }
+
+/* Pasted passage text, one verse per line, each starting with its number. A line with no number
+   continues the verse before it; a first line with no number reaches the validator, which names it. */
+function parseVerses(text) {
+  const verses = [];
+  String(text || '').split('\n').map(clean).filter(Boolean).forEach(line => {
+    const m = line.match(/^(\d+)[\s.:)]+(.+)$/);
+    if (m) verses.push({ number: Number(m[1]), text: m[2] });
+    else if (verses.length) verses[verses.length - 1].text += ' ' + line;
+    else verses.push({ number: 0, text: line });
+  });
+  return verses;
+}
+
+/* How tall a full-width passage block must be; the same estimate the engine makes. */
+function passageBlockHeight(verses, notice, hasPrompt) {
+  const inner = CONTENT.full - 26;
+  const chars = verses.reduce((n, v) => n + v.text.length + String(v.number).length + 1, 0);
+  let need = PASSAGE_REF_H + Math.ceil(chars / Math.floor(inner / PASSAGE_CHAR_W)) * PASSAGE_LINE_H + (hasPrompt ? PROMPT_H : 0);
+  if (notice) need += 4 + Math.ceil(notice.length / Math.floor(inner / NOTICE_CHAR_W)) * NOTICE_LINE_H;
+  return Math.ceil(need + HEAD_H + BODY_TOP_PAD + 2 * BORDER_W + 1);
+}
 
 /* The wording the starter writes when a field is left blank. Each one carries the passage
    reference, and the session number as well when another session has the same reference,
@@ -57,29 +81,42 @@ function defaultsFor(sessions, i) {
   return { defaults: d, value, shared };
 }
 
-function sessionPage(sessions, i, theme) {
+function sessionPage(sessions, i, theme, notice) {
   const s = sessions[i], n = i + 1;
-  const { value, shared } = defaultsFor(sessions, i);
+  const { value, shared, defaults } = defaultsFor(sessions, i);
   const ref = clean(s.reference);
   const refShown = ref ? ref + (shared ? ` (session ${n})` : '') : '';
   const name = clean(s.title) || ref;
   const words = list(s.words, MAX_WORDS);
+  const verses = parseVerses(s.passage);
+  const quoting = verses.length > 0 && !!ref;
+  const readEdited = value.read !== defaults.read;
+  /* A quoted passage takes the height it needs; the rows below give it up evenly, down to a usable minimum. */
+  const readH = quoting ? Math.max(92, passageBlockHeight(verses, notice, readEdited)) : 150;
+  const spare = 300 + 200 + 234 - 3 * MIN_ROW_H;
+  const take = Math.min(spare, Math.max(0, readH - 150));
+  const shrink = h => Math.round(h - (h - MIN_ROW_H) / spare * take);
+  const observeH = shrink(300), interpretH = shrink(200);
+  const observeY = 104 + readH + CONTENT.gap, interpretY = observeY + observeH + CONTENT.gap, applyY = interpretY + interpretH + CONTENT.gap;
+  const applyH = Math.max(92, CONTENT.bottom - applyY);
+  const readContent = quoting
+    ? Object.assign({ type: 'passage', reference: ref, verses }, notice ? { notice } : {}, readEdited ? { prompt: value.read } : {})
+    : { type: 'callout', text: value.read, rows: calloutRows(150, value.read, CONTENT.full) };
   const blocks = [
-    { x: CONTENT.left, y: 104, w: CONTENT.full, h: 150, title: refShown ? `Read ${refShown}` : `Session ${n} · Read the passage`, color: 'sage',
-      content: { type: 'callout', text: value.read, rows: calloutRows(150, value.read, CONTENT.full) } },
-    { x: CONTENT.left, y: 268, w: CONTENT.half, h: 300, title: `Session ${n} · Observe`, color: 'blue',
-      content: { type: 'lines', prompt: value.observe, rows: linesThatFit(300, true) } },
+    { x: CONTENT.left, y: 104, w: CONTENT.full, h: readH, title: refShown ? `Read ${refShown}` : `Session ${n} · Read the passage`, color: 'sage', content: readContent },
+    { x: CONTENT.left, y: observeY, w: CONTENT.half, h: observeH, title: `Session ${n} · Observe`, color: 'blue',
+      content: { type: 'lines', prompt: value.observe, rows: linesThatFit(observeH, true) } },
     words.length
-      ? { x: CONTENT.right, y: 268, w: CONTENT.half, h: 300, title: `Session ${n} · Words to look up`, color: 'lav',
-          content: { type: 'checklist', items: words, blank_rows: Math.max(0, checksThatFit(300) - words.length) } }
-      : { x: CONTENT.right, y: 268, w: CONTENT.half, h: 300, title: `Session ${n} · Questions`, color: 'lav',
-          content: { type: 'lines', prompt: `Questions ${refShown || `session ${n}`} raises for me`, rows: linesThatFit(300, true) } },
-    { x: CONTENT.left, y: 582, w: CONTENT.full, h: 200, title: `Session ${n} · Interpret`, color: 'warm',
-      content: { type: 'lines', prompt: value.interpret, rows: linesThatFit(200, true) } },
-    { x: CONTENT.left, y: 796, w: CONTENT.full, h: 234, title: `Session ${n} · Apply`, color: 'sage',
+      ? { x: CONTENT.right, y: observeY, w: CONTENT.half, h: observeH, title: `Session ${n} · Words to look up`, color: 'lav',
+          content: { type: 'checklist', items: words.slice(0, Math.max(1, checksThatFit(observeH))), blank_rows: Math.max(0, checksThatFit(observeH) - words.length) } }
+      : { x: CONTENT.right, y: observeY, w: CONTENT.half, h: observeH, title: `Session ${n} · Questions`, color: 'lav',
+          content: { type: 'lines', prompt: `Questions ${refShown || `session ${n}`} raises for me`, rows: linesThatFit(observeH, true) } },
+    { x: CONTENT.left, y: interpretY, w: CONTENT.full, h: interpretH, title: `Session ${n} · Interpret`, color: 'warm',
+      content: { type: 'lines', prompt: value.interpret, rows: linesThatFit(interpretH, true) } },
+    { x: CONTENT.left, y: applyY, w: CONTENT.full, h: applyH, title: `Session ${n} · Apply`, color: 'sage',
       content: { type: 'split',
-        left: { type: 'lines', prompt: value.apply, rows: linesThatFit(234, true) },
-        right: { type: 'lines', prompt: value.prayer, rows: linesThatFit(234, true) } } },
+        left: { type: 'lines', prompt: value.apply, rows: linesThatFit(applyH, true) },
+        right: { type: 'lines', prompt: value.prayer, rows: linesThatFit(applyH, true) } } },
   ];
   return {
     label: `Session ${n}`,
@@ -120,7 +157,7 @@ function buildStudySpec(form) {
   const sessions = Array.isArray(form.sessions) ? form.sessions.filter(s => s && typeof s === 'object') : [];
   const pages = [];
   sessions.forEach((s, i) => {
-    pages.push(sessionPage(sessions, i, theme));
+    pages.push(sessionPage(sessions, i, theme, clean(form.notice)));
     const discuss = discussionPage(s, i + 1, theme);
     if (discuss) pages.push(discuss);
   });
@@ -134,7 +171,7 @@ function buildStudySpec(form) {
   };
 }
 
-if (typeof module !== 'undefined' && module.exports) module.exports = { buildStudySpec, sessionDefaults, defaultsFor };
+if (typeof module !== 'undefined' && module.exports) module.exports = { buildStudySpec, sessionDefaults, defaultsFor, parseVerses };
 
 /* ---------------------------------------------------------------- the page */
 if (typeof document !== 'undefined') (function () {
@@ -149,13 +186,13 @@ if (typeof document !== 'undefined') (function () {
     return s;
   }
   function fresh() {
-    return { title: '', brand: 'Simplify to Glorify', audience: '', outcome: '', theme: '#b2c6b1', sessions: [freshSession()] };
+    return { title: '', brand: 'Simplify to Glorify', audience: '', outcome: '', theme: '#b2c6b1', notice: '', sessions: [freshSession()] };
   }
   /* A saved draft is data from an earlier visit: take only the fields the form knows, as strings. */
   function adopt(saved) {
     if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return null;
     const f = fresh();
-    ['title', 'brand', 'audience', 'outcome', 'theme'].forEach(k => { if (typeof saved[k] === 'string') f[k] = saved[k]; });
+    ['title', 'brand', 'audience', 'outcome', 'theme', 'notice'].forEach(k => { if (typeof saved[k] === 'string') f[k] = saved[k]; });
     const sessions = (Array.isArray(saved.sessions) ? saved.sessions : []).filter(s => s && typeof s === 'object' && !Array.isArray(s)).map(s => {
       const t = freshSession();
       TEXT_KEYS.forEach(k => { if (typeof s[k] === 'string') t[k] = s[k]; });
@@ -201,7 +238,7 @@ if (typeof document !== 'undefined') (function () {
 
   function renderStudy() {
     $('#title').value = form.title; $('#brand').value = form.brand; $('#audience').value = form.audience;
-    $('#outcome').value = form.outcome; $('#theme').value = form.theme;
+    $('#outcome').value = form.outcome; $('#theme').value = form.theme; $('#notice').value = form.notice;
   }
   function renderSessions() {
     const ol = $('#sessions');
@@ -289,7 +326,7 @@ if (typeof document !== 'undefined') (function () {
   renderStudy();
   renderSessions();
   renderSpec();
-  ['title', 'brand', 'audience', 'outcome', 'theme'].forEach(k => {
+  ['title', 'brand', 'audience', 'outcome', 'theme', 'notice'].forEach(k => {
     $('#' + k).oninput = e => { form[k] = e.target.value; save(); renderSpec(); };
   });
   $('#addSession').onclick = () => { form.sessions.push(freshSession()); renderSessions(); save(); renderSpec(); $(`#s${form.sessions.length}-reference`).focus(); };

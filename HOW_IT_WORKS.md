@@ -2,7 +2,7 @@
 
 ## Overview
 
-Topical Study Studio is a small Python-based system for creating polished, printable pages from structured JSON files. It was built for planners and is being turned into a tool for topical Bible studies. The study pieces, Scripture blocks from the NASB 2020, a repeating session structure and a verse count, are not built yet, so this guide describes the tool as it works today.
+Topical Study Studio is a small Python-based system for creating polished, printable pages from structured JSON files. It was built for planners and is being turned into a tool for topical Bible studies. A block that quotes the NASB 2020 and the study starter exist; a repeating session structure and the other study pieces are not built yet. This guide describes the tool as it works today.
 
 You describe a planner set in JSON: its title, page concepts, section positions, prompts, writing areas, checklists, choices, and tables. The factory validates that description and converts it into a self-contained HTML document. Each generated page is exactly 816 × 1056 pixels, representing an 8.5 × 11-inch US Letter page.
 
@@ -132,7 +132,7 @@ Then go to `http://127.0.0.1:8765/study-starter.html`, or follow the link on the
 
 Each session becomes one page on the split layout: read the passage, observe beside words to look up, interpret, and apply beside a prayer. Row counts come from the engine's own height estimate, so the validator reports nothing, and every page reaches the bottom of the content area. What you type is saved in your browser, so the form survives a refresh; **Start over** clears it.
 
-The starter writes planner content types, so the pages print today. It quotes no Scripture and therefore needs no copyright notice; when the passage block that quotes the NASB 2020 exists, the starter is where it will be offered first.
+To quote the passage, paste its NASB 2020 text into the session, one verse per line, each starting with its number, and copy the publisher's notice from lockman.org into the study's notice field. The block grows to fit the text, and the rows below it give up the height. Without passage text the page tells the reader where to read and quotes nothing.
 
 ## Available commands
 
@@ -208,6 +208,7 @@ The complete field-by-field format is documented in [`references/SPECIFICATION.m
 - `checklist` — labeled and blank checkbox rows
 - `choices` — radio-style or checkbox-style options
 - `callout` — short guidance with optional writing space
+- `passage` — quoted NASB 2020 Scripture with verse numbers
 - `table` — repeated-row trackers and logs
 - `split` — two related response areas
 - `custom_html` — trusted custom markup for advanced cases
@@ -343,7 +344,7 @@ Planners and studies that touch mental health, trauma, disability, medication, g
 
 ## What is changing
 
-The next product is a topical Bible study: six or so sessions on one subject, each a few pages that take the reader through a passage and into application, printed as a PDF. Scripture will be quoted from the NASB 2020 under its publisher's quotation terms, the check stage will count the verses, and the export will print the copyright notice. The study content types, the session structure and the study content guide do not exist yet. [`README.md`](README.md) lists what is planned under "Where it is going", and [`HANDOFF.md`](HANDOFF.md) says what comes first.
+The next product is a topical Bible study: six or so sessions on one subject, each a few pages that take the reader through a passage and into application, printed as a PDF. Scripture will be quoted from the NASB 2020 under its publisher's quotation terms, the check stage will count the verses, and the export will print the copyright notice. The passage block exists; the other study content types, the session structure and the study content guide do not yet. [`README.md`](README.md) lists what is planned under "Where it is going", and [`HANDOFF.md`](HANDOFF.md) says what comes first.
 
 ## Summary
 

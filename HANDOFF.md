@@ -117,7 +117,7 @@ are is in [`DECISIONS.md`](DECISIONS.md).
   Node is present as it is on CI's runner, builds a three-session sample with the page's own
   function and asserts the validator returns nothing. `DECISIONS.md` records why it is a
   page beside the Studio rather than a mode in it. The starter writes planner content types
-  and quotes no Scripture, so it needs no notice. `README.md`, `HOW_IT_WORKS.md` and the
+  and at first quoted no Scripture; the `passage` entry below changed that. `README.md`, `HOW_IT_WORKS.md` and the
   router describe it. Codex reviewed the commit the same day and returned seven findings, four
   blocking, all closed on the branch: a session titled like its own discussion page collided
   with it on concept (the concepts now carry "study" and "discussion" where a typed title
@@ -140,7 +140,28 @@ are is in [`DECISIONS.md`](DECISIONS.md).
   attempt made. The basic, study and depression outputs were regenerated;
   `approved-reference.html` stays frozen.
 
+- On 2026-11-04, on the branch `passage-block` stacked on `engine-clipped-lines`, the first study
+  type arrived: a `passage` block with a reference line, verse numbers, an optional `notice` and
+  optional writing rows. The engine prints the name NASB 2020 itself, so a block cannot name
+  another translation. The validator rejects a malformed passage and more than 500 verses in a
+  set, and warns when a set quotes Scripture with no notice. The study starter takes pasted text
+  and a notice, and grows the block as the rows below shrink. No Scripture is in the repository;
+  tests use placeholder text. The notice wording is not in the code: see item 0 under Next.
+
 ## Next
+
+0. **Check the Scripture terms against the publisher's page; the owner decides.** Lockman's
+   page, https://www.lockman.org/permission-to-quote-copyright-trademark-information/, marked
+   modified 2026-10-29 and read 2026-11-04, differs from what `CLAUDE.md`, `DECISIONS.md` and
+   the README record. It allows up to 1,000 verses, where this repository says 500; the engine
+   keeps 500, which stays inside the limit. It adds two conditions that nothing here checks: the
+   verses may not amount to a complete book of the Bible, and may not exceed 50% of the work's
+   text. Its notice lists 1960, 1971, 1977, 1995, 2020 and says to use only the last year
+   corresponding to the edition quoted, with the example that a 1995 quotation leaves out 2020.
+   That reads as keeping the earlier years up to the edition, where this repository says cite
+   2020 alone, so ask Lockman or decide before printing a notice. Certain not-for-sale print
+   material, such as church bulletins, may use the abbreviation (NASB) alone; whether a class
+   handout qualifies is also a question for the owner or Lockman.
 
 1. **Read the Timothy plan and decide.** The first study, *Timothy: Young and Trusted*, has
    been through stages 01 and 02 and waits at the stage 02 gate; see the State bullet. The
