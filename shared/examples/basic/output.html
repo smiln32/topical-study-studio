@@ -11,17 +11,24 @@ html,body{margin:0;padding:0;background:#ececec;font-family:"Aptos","Helvetica N
 .box{position:absolute;border:1.2px solid #5c5c5c;border-radius:10px;background:#fff;overflow:hidden}
 .head{height:32px;display:flex;align-items:center;padding:0 12px;font-size:10.5px;font-weight:700;border-bottom:1.2px solid #5c5c5c;letter-spacing:.15px}
 .sage{background:#dfe9df}.lav{background:#e8dfea}.blue{background:#dce8ee}.warm{background:#f0e6e2}.rose{background:#eee0dd}.ivory{background:#fbf9f6}
-.body{height:calc(100% - 32px);padding:11px 13px;background:#fff}
+.body{height:calc(100% - 32px);padding:11px 13px;background:#fff;display:flex;flex-direction:column}
+.body>*{flex:none}
 .prompt{font-size:9px;font-weight:700;margin:0 0 4px}
 .line{height:22px;border-bottom:1px solid #b9b9b9}
 .line.tight{height:18px}.line.tall{height:27px}
 .grid-lines{display:grid;height:100%;grid-template-rows:repeat(var(--rows),1fr);gap:0}
+.body>.grid-lines,.body>.two-col>div>.grid-lines{flex:1 1 0;height:auto;min-height:0;grid-template-rows:repeat(var(--rows),minmax(0,1fr))}
+.body>.grid-lines>.line,.body>.two-col>div>.grid-lines>.line{height:auto;min-height:0}
 .check-row{display:grid;grid-template-columns:14px 1fr;gap:8px;align-items:center;height:24px;font-size:9.5px}
 .check{width:10px;height:10px;border:1px solid #5c5c5c}
 .radio{width:10px;height:10px;border:1px solid #5c5c5c;border-radius:50%}
 .pill-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:9px;margin-bottom:4px}
 .pill{display:flex;align-items:center;gap:5px}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;height:100%}
+.body>.two-col{flex:1 1 0;height:auto;min-height:0;grid-template-rows:minmax(0,1fr)}
+.body>.two-col>div{display:flex;flex-direction:column;min-width:0;min-height:0}
+.body>.two-col>div>*{flex:none}
+.body>.custom{flex:1 1 0;min-height:0}
 .label{font-size:9.5px;font-weight:700;margin-bottom:4px}
 .small{font-size:8.5px;color:#555}.callout{font-size:10px;line-height:1.35}
 .table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:8px}

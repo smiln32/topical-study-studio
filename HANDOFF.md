@@ -130,6 +130,16 @@ are is in [`DECISIONS.md`](DECISIONS.md).
   upper case against the design standard (casing is kept); and the specification display
   fell back to a monospace face (it inherits). The suite is fifty checks.
 
+- On 2026-11-04, on the branch `engine-clipped-lines` stacked on `study-starter`, the engine
+  stopped cutting off writing lines. `.grid-lines` was 100% of a block body with a prompt above
+  it, so the last line could fall outside the box: 2 lines on the Psalm 23 example. The body is
+  now a flex column and writing lines share the height left under the prompt, in plain lines,
+  callouts and both sides of a split. Those rules apply only to engine-drawn blocks;
+  `custom_html` sits in a `.custom` wrapper and keeps its old sizing. `tests/test_print_fit.py`
+  measures this in Chrome, including that custom lines do not collapse, a mistake the first
+  attempt made. The basic, study and depression outputs were regenerated;
+  `approved-reference.html` stays frozen.
+
 ## Next
 
 1. **Read the Timothy plan and decide.** The first study, *Timothy: Young and Trusted*, has
@@ -169,15 +179,12 @@ are is in [`DECISIONS.md`](DECISIONS.md).
    Studio** button that writes its specification to the Studio's saved draft, and the
    Studio's JSON download can stand in for the starter's. Until then the starter's JSON is
    edited by hand or taken through stage 03.
-6. **The last writing line of a prompted block does not print.** Found 2026-11-04 while
-   checking the starter's output in Chrome. `.grid-lines` is `height:100%` of the block
-   body, and a prompt sits above it in the same body, so the grid overflows the body by
-   the prompt's height and `overflow:hidden` cuts the bottom line or two; the lines that
-   remain are spread evenly, so the page still looks full. The validator's estimate
-   (`rows * 22 + 16`) does not see it. The fix is in `study_factory.py`'s CSS, for example
-   `height:calc(100% - 17px)` when a prompt is present, or a flex column; it changes every
-   generated page and the approved references in `shared/examples/`, so it is the owner's
-   call, as item 3 is.
+6. **The depression example's custom markup still clips.** Every block in
+   `shared/examples/depression/spec.json` is `custom_html`, so the engine fix of 2026-11-04
+   deliberately leaves it alone and its pages are pixel-identical. Chrome shows 15 lines cut
+   across 24 of its 59 blocks that run past their box, and the validator cannot see inside
+   custom markup. Rewriting those blocks with standard types would fix it, and would change a
+   look the owner approved.
 7. **Decide on a per-passage accuracy tick.** The review of 2026-11-01 asked that, before the
    first study quotes Scripture, stage 04 carry a line the author ticks per passage, "reference
    checked against the NASB 2020 text". That is accuracy, not doctrine, so it does not reopen

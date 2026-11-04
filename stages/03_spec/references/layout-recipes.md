@@ -42,4 +42,5 @@ overlap, which is what the validator checks.
 
 A `lines` row is 22px, a checklist row 24px, a table row about 40px with its header. Each
 block loses 32px to its header and 22px to padding, and a prompt costs about 17px more.
-Rows that do not fit are clipped; the validator estimates when that will happen and warns, so count before you write.
+Writing lines share the height left under a prompt, so too many of them are squeezed; checklist and
+table rows that do not fit are clipped. The validator estimates both and warns, so count before you write.
