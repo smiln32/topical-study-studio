@@ -100,6 +100,19 @@ check; here stage 05's contract makes the same demand of the assistant. The cold
 
 ## The Studio
 
+**The study starter is a separate page beside the Studio, not a mode inside it.** Decided
+2026-11-04. The owner wanted the tool easier to use: a page to fill in the blanks. A study
+has a shape the Studio's planner blueprint does not (one page per passage, the same five
+sections every session), and the Studio's editor draws and edits only lines, checklists and
+choices, while a study page wants a callout and a split. So `studio/study-starter.html`
+and `studio/study-starter.js` take the brand, the audience and one session per passage,
+lay the pages out on the split recipe with row counts computed from the engine's own
+height estimate, and use the Studio's server for checking, preview and the finished HTML.
+The layout function is pure and `tests/test_study_starter.py` runs it under Node and hands
+the result to the validator, so the starter cannot drift from what the engine accepts.
+Teaching the Studio's editor the callout and split types, and then opening a starter study
+in it, is the next step in `HANDOFF.md`; the starter was not made to wait for that.
+
 **The design-system tokens are the authority for the Studio, and a test holds them.** Decided
 2026-10-31, when `_config/design-system.md` and `studio/styles.css` were reconciled. Where
 they disagreed, the document won for canvas (`#ececec`, which the palette specimen and the

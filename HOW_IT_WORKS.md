@@ -115,6 +115,25 @@ python study_factory.py my-planner.json my-planner.html
 
 Open `my-planner.html` in a web browser. You should see a full US Letter planner page with four editable-content sections.
 
+## Fastest first study
+
+Start the Studio and open the study starter:
+
+```bash
+python study_studio.py
+```
+
+Then go to `http://127.0.0.1:8765/study-starter.html`, or follow the link on the Studio's brief page. The starter is a form:
+
+1. Name the study and the brand that prints in every footer, and choose a page colour.
+2. Add one session per passage. Type the reference (for example `Psalm 23:1-3`) and a session title. The read, observe, interpret, apply and prayer prompts fill themselves with wording that names the passage; edit any of them. Add words to look up, up to ten, and up to four discussion questions if the session needs a second page.
+3. Press **Check the study**. The same validator that checks the command line reports what it finds.
+4. Press **Preview the pages** to see every page at true size, then **Download finished HTML** and print it as described under Printing to PDF, or **Download the specification (JSON)** to edit by hand or keep beside the PDF.
+
+Each session becomes one page on the split layout: read the passage, observe beside words to look up, interpret, and apply beside a prayer. Row counts come from the engine's own height estimate, so the validator reports nothing, and every page reaches the bottom of the content area. What you type is saved in your browser, so the form survives a refresh; **Start over** clears it.
+
+The starter writes planner content types, so the pages print today. It quotes no Scripture and therefore needs no copyright notice; when the passage block that quotes the NASB 2020 exists, the starter is where it will be offered first.
+
 ## Available commands
 
 ### Show the version

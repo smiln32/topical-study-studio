@@ -48,6 +48,12 @@ The studio opens at `http://127.0.0.1:8765`. Drafts are saved in that browser on
 
 Studio features include blueprint recommendations, page sequencing, a full-page preview, adjustable side panels, snap-to-grid movement by pointer or keyboard, undo and redo, local draft saving, production notes, validation, and HTML/JSON export.
 
+### The study starter
+
+For a Bible study, the quickest way in is the **study starter** at `http://127.0.0.1:8765/study-starter.html`, also linked from the Studio's brief page. Fill in the study title, the brand for the footer, and one session per passage: the reference, a title, words to look up, and the observe, interpret, apply and prayer prompts, which the starter fills with wording that names the passage when you leave them blank. Up to four discussion questions give a session a second page. The starter lays out one page per session with today's content types on the standard grid, checks it with the same validator, previews every page at true size, and downloads the finished HTML or the specification as JSON. The JSON download needs no server; checking, preview and the finished HTML need the Studio running.
+
+The starter quotes no Scripture. It tells the reader where to read, so the pages it writes need no copyright notice.
+
 Create a topic-aware starter specification:
 
 ```bash

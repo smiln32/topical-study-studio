@@ -1,7 +1,7 @@
 # Handoff
 
 Written 2026-10-29, when the repository was laid out as an ICM workspace; brought up to date
-2026-11-03. It holds the state of the work and what to do next. Why things are the way they
+2026-11-04. It holds the state of the work and what to do next. Why things are the way they
 are is in [`DECISIONS.md`](DECISIONS.md).
 
 ## State
@@ -103,6 +103,23 @@ are is in [`DECISIONS.md`](DECISIONS.md).
   must-include back to stage 01, and the check report names the blocks where a clipped row
   would show first. Enforcing the export gate in code is no longer on the list.
 
+- On 2026-11-04 the **study starter** was added on the branch `study-starter`:
+  `studio/study-starter.html` and `studio/study-starter.js`, linked from the Studio's brief
+  page and served by `study_studio.py` at `/study-starter.html`. It is a fill-in-the-blanks
+  form: study title, brand, audience, page colour, then one session per passage with the
+  reference, a title, up to ten words to look up, the read, observe, interpret, apply and
+  prayer prompts (filled with wording that names the passage when left blank, so nothing
+  repeats across sessions), and up to four discussion questions for a second page. It lays
+  each session out on the split recipe with row counts computed from the engine's height
+  estimate, checks through `/api/validate`, previews through `/api/render` in a sandboxed
+  frame, and downloads the finished HTML or the JSON. The form is saved in the browser.
+  `tests/test_study_starter.py` (eight checks, suite now forty-six) serves the page and, when
+  Node is present as it is on CI's runner, builds a three-session sample with the page's own
+  function and asserts the validator returns nothing. `DECISIONS.md` records why it is a
+  page beside the Studio rather than a mode in it. The starter writes planner content types
+  and quotes no Scripture, so it needs no notice. `README.md`, `HOW_IT_WORKS.md` and the
+  router describe it.
+
 ## Next
 
 1. **Read the Timothy plan and decide.** The first study, *Timothy: Young and Trusted*, has
@@ -135,7 +152,23 @@ are is in [`DECISIONS.md`](DECISIONS.md).
 4. **Small cosmetic items**, none blocking: `--init` without `--topic` titles the page
    "My My Focus"; `study_studio.py` accepts `--host 0.0.0.0` with no authentication and
    its help text does not say so.
-5. **Decide on a per-passage accuracy tick.** The review of 2026-11-01 asked that, before the
+5. **Teach the Studio's editor the callout and split types.** `studio/app.js` draws and
+   edits only lines, checklists and choices; a callout or a split shows as writing lines in
+   the preview and the response-style control has no value for it. Once the editor draws
+   both and offers them as response styles, the study starter can gain an **Open in the
+   Studio** button that writes its specification to the Studio's saved draft, and the
+   Studio's JSON download can stand in for the starter's. Until then the starter's JSON is
+   edited by hand or taken through stage 03.
+6. **The last writing line of a prompted block does not print.** Found 2026-11-04 while
+   checking the starter's output in Chrome. `.grid-lines` is `height:100%` of the block
+   body, and a prompt sits above it in the same body, so the grid overflows the body by
+   the prompt's height and `overflow:hidden` cuts the bottom line or two; the lines that
+   remain are spread evenly, so the page still looks full. The validator's estimate
+   (`rows * 22 + 16`) does not see it. The fix is in `study_factory.py`'s CSS, for example
+   `height:calc(100% - 17px)` when a prompt is present, or a flex column; it changes every
+   generated page and the approved references in `shared/examples/`, so it is the owner's
+   call, as item 3 is.
+7. **Decide on a per-passage accuracy tick.** The review of 2026-11-01 asked that, before the
    first study quotes Scripture, stage 04 carry a line the author ticks per passage, "reference
    checked against the NASB 2020 text". That is accuracy, not doctrine, so it does not reopen
    the doctrinal-review decision; whether it goes in the contract is the owner's call.

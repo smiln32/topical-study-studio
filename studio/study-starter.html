@@ -1,0 +1,63 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Study starter · Topical Study Studio</title><link rel="stylesheet" href="styles.css?v=20260716-6">
+<style>
+nav a{display:inline-block;min-height:40px;padding:8px 13px;border-radius:8px;color:var(--chrome-soft);text-decoration:none;font-weight:700;line-height:24px}
+nav a:hover,nav a:focus-visible{background:var(--white);color:var(--ink)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px;margin-top:24px}
+.card h2{margin:0 0 4px}
+.card>p{max-width:68ch;line-height:1.55;color:var(--muted);margin:0 0 18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.grid .wide{grid-column:1/-1}
+#sessions{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px}
+.session{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface-soft)}
+.session .grid{margin-top:10px}
+.session-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.session-tools{display:flex;gap:4px}
+.session-tools button{min-width:40px}
+.buttons{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+#findings:empty{display:none}
+#findings{border-top:1px solid var(--line);margin-top:4px}
+#frame{width:100%;height:72vh;border:1px solid var(--border);border-radius:8px;background:var(--canvas)}
+details.spec{margin-top:24px}
+details.spec summary{padding:14px 0}
+details.spec pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.45;background:var(--white);border:1px solid var(--line);border-radius:8px;padding:14px;margin:0}
+.note{display:block;margin-top:14px;color:var(--muted);line-height:1.5}
+@media(max-width:680px){.grid{grid-template-columns:1fr}.grid .wide{grid-column:1}nav a{padding:8px}}
+</style></head><body>
+<a class="skip" href="#main">Skip to the form</a>
+<header><div class="brand"><b>PF</b><span><strong>Topical Study Studio</strong><small>Study starter</small></span></div><nav aria-label="Studio"><a href="index.html">Open the Studio</a></nav><div class="actions"><small id="saved">Saved locally</small><button id="reset" type="button">Start over</button></div></header>
+<main id="main" class="flow active">
+<div class="intro"><em>Study starter</em><h1>Fill in the blanks. The starter writes the pages.</h1><p>Name the study, add one session for each passage, and the starter lays out a page per session with the content types the engine prints today: read the passage, observe, words to look up, interpret, apply. Every blank you leave is filled with wording that names the passage, so no two sessions repeat a prompt. Check it, preview it, and download the finished HTML to print or the JSON to edit by hand or in the Studio.</p></div>
+<form id="study">
+<section class="card"><h2>The study</h2><p>What the set is called and who it is for. The brand goes in every page footer.</p>
+<div class="grid">
+<label>Study title<input id="title" placeholder="Timothy: Young and Trusted" required></label>
+<label>Brand, printed in the footer<input id="brand" placeholder="Simplify to Glorify"></label>
+<label class="wide">Who it is for<input id="audience" placeholder="A led class of adults at church, thirty minutes a session"></label>
+<label class="wide">What it should help them do<textarea id="outcome" rows="2" placeholder="See that youth can still be trusted with real responsibility."></textarea></label>
+<label>Page colour<select id="theme"><option value="#b2c6b1">Studio sage</option><option value="#c6b5c8">Proof lavender</option><option value="#7b9fb3">Layout slate</option><option value="#e6d7d3">Review blush</option></select></label>
+</div></section>
+<section class="card"><div class="heading"><div><h2>Sessions</h2><p>One per passage, in the order they are taught. The suggested wording changes when you type the passage; edit any of it.</p></div><button type="button" id="addSession">+ Add session</button></div>
+<ol id="sessions"></ol></section>
+<section class="card"><h2>Check and download</h2><p>The same validator that checks the command-line factory checks this study. Preview and the finished HTML need the local generator running (<code>python study_studio.py</code>); the JSON download works anywhere.</p>
+<div class="buttons"><button type="button" id="check" class="primary">Check the study</button><button type="button" id="preview">Preview the pages</button><button type="button" id="html">Download finished HTML</button><button type="button" id="json">Download the specification (JSON)</button></div>
+<div id="findings" aria-live="polite"></div>
+<small class="note">The starter quotes no Scripture; it tells the reader where to read. When a study quotes the NASB 2020, the publisher's notice must be printed and the work must stay under 500 verses. A study about mental health, trauma, grief, addiction or crisis is reviewed by a qualified professional before it is published or sold.</small></section>
+<section class="card" id="previewCard" hidden><h2>Preview</h2><p>Every page at true size, as the finished HTML prints. Scroll inside the frame.</p><iframe id="frame" title="Preview of the study pages" sandbox></iframe></section>
+<details class="spec"><summary>The specification as it will be written</summary><pre id="specView"></pre></details>
+</form>
+</main>
+<template id="sessionRow"><li class="session"><div class="session-head"><strong>Session <span class="n"></span></strong><span class="session-tools"><button type="button" data-act="up" aria-label="Move this session up">↑</button><button type="button" data-act="down" aria-label="Move this session down">↓</button><button type="button" data-act="remove" aria-label="Remove this session">×</button></span></div>
+<div class="grid">
+<label>Passage<input data-k="reference" placeholder="Psalm 23:1-3"></label>
+<label>Session title<input data-k="title" placeholder="The Shepherd"></label>
+<label class="wide">Words to look up, separated by commas, up to ten<input data-k="words" placeholder="Shepherd, pastures, restores, paths"></label>
+<label class="wide">Under the title<input data-k="intro" placeholder="Read the whole psalm before you begin."></label>
+<label class="wide">Read the passage<textarea data-k="read" rows="2"></textarea></label>
+<label class="wide">Observe<textarea data-k="observe" rows="2"></textarea></label>
+<label class="wide">Interpret<textarea data-k="interpret" rows="2"></textarea></label>
+<label>Apply<textarea data-k="apply" rows="2"></textarea></label>
+<label>Pray<textarea data-k="prayer" rows="2"></textarea></label>
+<label class="wide">Discussion questions, one per line, up to four. Leave this empty and the session has no discussion page.<textarea data-k="questions" rows="3"></textarea></label>
+</div></li></template>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="study-starter.js?v=20261104"></script></body></html>

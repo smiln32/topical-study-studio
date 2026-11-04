@@ -52,6 +52,8 @@ assistant does them, with the same engine and the same rules.
   day). Then no stale check or export can pass for the current one, and the earlier export
   is kept.
 - **"I want to make one by hand"** → run `python study_studio.py` and use the Studio.
+- **"I want a study, quickly"** → run `python study_studio.py` and open `studio/study-starter.html`
+  from it: fill in the sessions and it writes a specification that validates today.
 - **"I am using a chatbot, not this folder"** → `shared/new-chat-starter-prompt.md`.
 
 **Changing the tool**
