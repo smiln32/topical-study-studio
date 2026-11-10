@@ -69,6 +69,32 @@ class PassageValidationTests(unittest.TestCase):
         self.assertTrue(any("will not print" in f for f in findings))
 
 
+class PassageReviewFindingTests(unittest.TestCase):
+    """Codex review of 2026-11-10."""
+
+    def test_digit_like_characters_are_findings_not_crashes(self):
+        for number in ("\u00b2", "\u2460", "9" * 5000, "007x"):
+            with self.subTest(number=number[:8]):
+                self.assertTrue(errors(page_with(passage(verses=[{"number": number, "text": "x"}]))))
+        for rows in ("\u00b2", "\u2460", "9" * 5000):
+            with self.subTest(rows=rows[:8]):
+                self.assertTrue(errors(page_with({"type": "lines", "rows": rows})))
+
+    def test_a_too_narrow_passage_block_is_reported_not_crashed(self):
+        spec = page_with(passage(), w=28)
+        self.assertTrue(any("at least" in f for f in errors(spec)))
+
+    def test_only_the_sides_of_a_split_are_counted(self):
+        hidden = {"type": "lines", "rows": 4, "left": passage(verses=verses(3))}
+        self.assertEqual(study_factory.count_verses(page_with(hidden)), 0)
+        self.assertFalse(study_factory.uses_custom_html(page_with({"type": "lines", "left": {"type": "custom_html", "html": "x"}})))
+
+    def test_a_long_reference_is_counted_in_the_height(self):
+        short = study_factory.estimate_content_height(passage(reference="Book 1:1"), 244)
+        long = study_factory.estimate_content_height(passage(reference="Book 1:1, " * 40), 244)
+        self.assertGreater(long, short + 100)
+
+
 class PassageRenderTests(unittest.TestCase):
     def test_the_translation_is_the_engines_and_a_block_cannot_name_another(self):
         html = study_factory.render(page_with(passage(translation="Another version")))
@@ -91,11 +117,12 @@ class PassagePrintTests(unittest.TestCase):
     def test_a_block_as_short_as_the_estimate_allows_still_holds_its_text(self):
         prose = "when the evening came the travellers rested beside the water and talked of the road behind them"
         pages = []
-        for n, width in ((1, 760), (3, 760), (8, 760), (20, 760), (1, 373), (3, 373), (8, 373), (20, 373), (8, 244)):
-            content = passage(reference=f"Book {n}:{width}", verses=[{"number": k, "text": prose} for k in range(1, n + 1)], notice=NOTICE * 3)
+        cases = ((1, 760, 1), (3, 760, 1), (8, 760, 1), (20, 760, 1), (1, 373, 1), (3, 373, 1), (8, 373, 1), (20, 373, 1), (8, 244, 1), (1, 244, 40), (3, 373, 20))
+        for n, width, repeat in cases:
+            content = passage(reference=" ".join([f"Book {n}:{width}"] * repeat), verses=[{"number": k, "text": prose} for k in range(1, n + 1)], notice=NOTICE * 3)
             need = study_factory.estimate_content_height(content, width)
             height = int(need + study_factory.HEAD_H + study_factory.BODY_TOP_PAD + 2 * study_factory.BORDER_W) + 1
-            pages.append({"concept": f"{n} {width}", "title": "x", "blocks": [{"x": 28, "y": 104, "w": width, "h": height, "title": f"{n} verses at {width}", "content": content}]})
+            pages.append({"concept": f"{n} {width} {repeat}", "title": "x", "blocks": [{"x": 28, "y": 104, "w": width, "h": height, "title": f"{n} verses at {width}", "content": content}]})
         spec = {"pages": pages}
         self.assertFalse([f for f in study_factory.validate(spec) if "will not print" in f])
         results = measure(spec)
@@ -113,7 +140,7 @@ class EstimateAgreementTests(unittest.TestCase):
 
     def test_the_starter_and_the_engine_use_the_same_passage_measures(self):
         script = (ROOT / "studio" / "study-starter.js").read_text(encoding="utf-8")
-        for name in ("PASSAGE_REF_H", "PASSAGE_CHAR_W", "PASSAGE_LINE_H", "NOTICE_CHAR_W", "NOTICE_LINE_H"):
+        for name in ("PASSAGE_REF_H", "PASSAGE_CHAR_W", "PASSAGE_LINE_H", "NOTICE_CHAR_W", "NOTICE_LINE_H", "REF_CHAR_W", "REF_LINE_H", "REF_LABEL_W"):
             with self.subTest(name=name):
                 self.assertIn(f"{name} = {getattr(study_factory, name)}", script)
 
@@ -148,6 +175,31 @@ class StarterPassageTests(unittest.TestCase):
     def test_no_text_or_no_reference_stays_a_pointer_to_the_passage(self):
         spec = self.build({"title": "T", "sessions": [{"reference": "Book 1"}, {"reference": "", "passage": self.text(2)}]})
         self.assertEqual([p["blocks"][0]["content"]["type"] for p in spec["pages"]], ["callout", "callout"])
+        self.assertEqual(study_factory.validate(spec), [])
+
+    def test_every_word_survives_a_long_passage(self):
+        words = ", ".join(f"word{k}" for k in range(10))
+        for n in (5, 12, 20, 30, 45):
+            with self.subTest(verses=n):
+                spec = self.build({"title": "T", "notice": NOTICE, "sessions": [{"reference": "Book 1", "words": words, "passage": self.text(n)}]})
+                items = [b["content"].get("items") for p in spec["pages"] for b in p["blocks"] if b["content"]["type"] == "checklist"]
+                self.assertEqual(items, [[f"word{k}" for k in range(10)]])
+                for page in spec["pages"]:
+                    for b in page["blocks"]:
+                        self.assertLessEqual(b["y"] + b["h"], study_factory.SAFE_BOTTOM)
+                self.assertFalse(errors(spec))
+
+    def test_a_passage_too_long_for_the_session_page_gets_its_own(self):
+        spec = self.build({"title": "T", "notice": NOTICE, "sessions": [{"reference": "Book 1", "passage": self.text(30)}]})
+        self.assertEqual([p["label"] for p in spec["pages"]], ["Session 1 · Passage", "Session 1"])
+        self.assertEqual(spec["pages"][0]["blocks"][0]["content"]["type"], "passage")
+        self.assertEqual(spec["pages"][1]["blocks"][0]["content"]["type"], "callout")
+        self.assertEqual(study_factory.validate(spec), [])
+        short = self.build({"title": "T", "notice": NOTICE, "sessions": [{"reference": "Book 1", "passage": self.text(5)}]})
+        self.assertEqual(len(short["pages"]), 1)
+
+    def test_references_differing_only_in_punctuation_count_as_shared(self):
+        spec = self.build({"title": "T", "sessions": [{"reference": "Psalm 23:1-3"}, {"reference": "Psalm 23:1\u20133"}]})
         self.assertEqual(study_factory.validate(spec), [])
 
     def test_an_edited_read_instruction_prints_above_the_passage(self):

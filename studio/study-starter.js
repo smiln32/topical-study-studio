@@ -9,6 +9,7 @@ const STARTER_VERSION = 1;
 const CONTENT = { top: 104, bottom: 1030, left: 28, full: 760, half: 373, right: 415, gap: 14 };
 const HEAD_H = 32, BODY_TOP_PAD = 11, BORDER_W = 1.2, LINE_H = 22, CHECK_H = 24, PROMPT_H = 16;
 const PASSAGE_REF_H = 20, PASSAGE_CHAR_W = 5.6, PASSAGE_LINE_H = 15.4, NOTICE_CHAR_W = 4.4, NOTICE_LINE_H = 10.7;
+const REF_CHAR_W = 6.4, REF_LINE_H = 14, REF_LABEL_W = 64;
 const MIN_ROW_H = 110;
 const MAX_WORDS = 10, MAX_QUESTIONS = 4;
 const COLOURS = ['sage', 'blue', 'lav', 'warm'];
@@ -41,11 +42,13 @@ function parseVerses(text) {
 }
 
 /* How tall a full-width passage block must be; the same estimate the engine makes. */
-function passageBlockHeight(verses, notice, hasPrompt) {
+function passageBlockHeight(verses, notice, hasPrompt, reference) {
   const inner = CONTENT.full - 26;
+  const perLine = (w, room = inner) => Math.max(1, Math.floor(room / w));
   const chars = verses.reduce((n, v) => n + v.text.length + String(v.number).length + 1, 0);
-  let need = PASSAGE_REF_H + Math.ceil(chars / Math.floor(inner / PASSAGE_CHAR_W)) * PASSAGE_LINE_H + (hasPrompt ? PROMPT_H : 0);
-  if (notice) need += 4 + Math.ceil(notice.length / Math.floor(inner / NOTICE_CHAR_W)) * NOTICE_LINE_H;
+  const refLines = Math.max(1, Math.ceil(String(reference || '').length / perLine(REF_CHAR_W, inner - REF_LABEL_W)));
+  let need = PASSAGE_REF_H + (refLines - 1) * REF_LINE_H + Math.ceil(chars / perLine(PASSAGE_CHAR_W)) * PASSAGE_LINE_H + (hasPrompt ? PROMPT_H : 0);
+  if (notice) need += 4 + Math.ceil(notice.length / perLine(NOTICE_CHAR_W)) * NOTICE_LINE_H;
   return Math.ceil(need + HEAD_H + BODY_TOP_PAD + 2 * BORDER_W + 1);
 }
 
@@ -64,10 +67,12 @@ function sessionDefaults(reference, n, shared) {
 }
 
 /* Which sessions share a reference with another session. */
+/* The validator compares phrases with case and punctuation removed, so "1-3" and "1–3" match. */
+function phrase(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
 function sharedReferences(sessions) {
   const counts = {};
-  sessions.forEach(s => { const r = clean(s.reference).toLowerCase(); if (r) counts[r] = (counts[r] || 0) + 1; });
-  return sessions.map(s => counts[clean(s.reference).toLowerCase()] > 1);
+  sessions.forEach(s => { const r = phrase(s.reference); if (r) counts[r] = (counts[r] || 0) + 1; });
+  return sessions.map(s => counts[phrase(s.reference)] > 1);
 }
 
 /* The defaults for session i of a list, and whether each auto field still holds its plain
@@ -91,24 +96,29 @@ function sessionPage(sessions, i, theme, notice) {
   const verses = parseVerses(s.passage);
   const quoting = verses.length > 0 && !!ref;
   const readEdited = value.read !== defaults.read;
-  /* A quoted passage takes the height it needs; the rows below give it up evenly, down to a usable minimum. */
-  const readH = quoting ? Math.max(92, passageBlockHeight(verses, notice, readEdited)) : 150;
-  const spare = 300 + 200 + 234 - 3 * MIN_ROW_H;
-  const take = Math.min(spare, Math.max(0, readH - 150));
-  const shrink = h => Math.round(h - (h - MIN_ROW_H) / spare * take);
-  const observeH = shrink(300), interpretH = shrink(200);
+  /* A quoted passage takes the height it needs and the rows below give it up, each down to its own
+     minimum; the checklist keeps room for every word. A passage too long for that moves to a page of its own. */
+  const minObserve = Math.max(MIN_ROW_H, words.length ? Math.ceil(words.length * CHECK_H + HEAD_H + BODY_TOP_PAD + 2 * BORDER_W + 1) : 0);
+  const rows = [[300, minObserve], [200, MIN_ROW_H], [234, MIN_ROW_H]];
+  const spare = rows.reduce((t, [h, m]) => t + h - m, 0);
+  const needH = quoting ? Math.max(92, passageBlockHeight(verses, notice, readEdited, ref)) : 150;
+  const ownPage = quoting && needH - 150 > spare;
+  const readH = ownPage ? 150 : needH;
+  const take = Math.max(0, readH - 150);
+  const shrink = ([h, m]) => Math.round(h - (h - m) / spare * take);
+  const observeH = shrink(rows[0]), interpretH = shrink(rows[1]);
   const observeY = 104 + readH + CONTENT.gap, interpretY = observeY + observeH + CONTENT.gap, applyY = interpretY + interpretH + CONTENT.gap;
   const applyH = Math.max(92, CONTENT.bottom - applyY);
-  const readContent = quoting
-    ? Object.assign({ type: 'passage', reference: ref, verses }, notice ? { notice } : {}, readEdited ? { prompt: value.read } : {})
-    : { type: 'callout', text: value.read, rows: calloutRows(150, value.read, CONTENT.full) };
+  const passageContent = Object.assign({ type: 'passage', reference: ref, verses }, notice ? { notice } : {}, readEdited ? { prompt: value.read } : {});
+  const readText = ownPage && !readEdited ? `Read ${refShown} on the page before this one, twice, once silently and once aloud. Then write out the verse that speaks most clearly to you.` : value.read;
+  const readContent = quoting && !ownPage ? passageContent : { type: 'callout', text: readText, rows: calloutRows(150, readText, CONTENT.full) };
   const blocks = [
-    { x: CONTENT.left, y: 104, w: CONTENT.full, h: readH, title: refShown ? `Read ${refShown}` : `Session ${n} · Read the passage`, color: 'sage', content: readContent },
+    { x: CONTENT.left, y: 104, w: CONTENT.full, h: readH, title: ownPage ? `Session ${n} · Before you begin` : refShown ? `Read ${refShown}` : `Session ${n} · Read the passage`, color: 'sage', content: readContent },
     { x: CONTENT.left, y: observeY, w: CONTENT.half, h: observeH, title: `Session ${n} · Observe`, color: 'blue',
       content: { type: 'lines', prompt: value.observe, rows: linesThatFit(observeH, true) } },
     words.length
       ? { x: CONTENT.right, y: observeY, w: CONTENT.half, h: observeH, title: `Session ${n} · Words to look up`, color: 'lav',
-          content: { type: 'checklist', items: words.slice(0, Math.max(1, checksThatFit(observeH))), blank_rows: Math.max(0, checksThatFit(observeH) - words.length) } }
+          content: { type: 'checklist', items: words, blank_rows: Math.max(0, checksThatFit(observeH) - words.length) } }
       : { x: CONTENT.right, y: observeY, w: CONTENT.half, h: observeH, title: `Session ${n} · Questions`, color: 'lav',
           content: { type: 'lines', prompt: `Questions ${refShown || `session ${n}`} raises for me`, rows: linesThatFit(observeH, true) } },
     { x: CONTENT.left, y: interpretY, w: CONTENT.full, h: interpretH, title: `Session ${n} · Interpret`, color: 'warm',
@@ -118,7 +128,7 @@ function sessionPage(sessions, i, theme, notice) {
         left: { type: 'lines', prompt: value.apply, rows: linesThatFit(applyH, true) },
         right: { type: 'lines', prompt: value.prayer, rows: linesThatFit(applyH, true) } } },
   ];
-  return {
+  const page = {
     label: `Session ${n}`,
     concept: `Session ${n} study: ${name || 'untitled'}`,   // "study" and "discussion" sit where no typed title can reach
     title: name ? `Session ${n}: ${name}` : `Session ${n}`,
@@ -126,6 +136,16 @@ function sessionPage(sessions, i, theme, notice) {
     theme,
     blocks,
   };
+  if (!ownPage) return [page];
+  return [{
+    label: `Session ${n} · Passage`,
+    concept: `Session ${n} passage: ${refShown}`,
+    title: name ? `Session ${n}: ${name}` : `Session ${n}`,
+    subtitle: `${refShown}. Too long to share a page, so it has this one.`,
+    theme,
+    blocks: [{ x: CONTENT.left, y: CONTENT.top, w: CONTENT.full, h: CONTENT.bottom - CONTENT.top, title: `Read ${refShown}`, color: 'sage',
+      content: Object.assign({}, passageContent, { prompt: undefined }) }],
+  }, page];
 }
 
 function discussionPage(s, n, theme) {
@@ -157,7 +177,7 @@ function buildStudySpec(form) {
   const sessions = Array.isArray(form.sessions) ? form.sessions.filter(s => s && typeof s === 'object') : [];
   const pages = [];
   sessions.forEach((s, i) => {
-    pages.push(sessionPage(sessions, i, theme, clean(form.notice)));
+    pages.push(...sessionPage(sessions, i, theme, clean(form.notice)));
     const discuss = discussionPage(s, i + 1, theme);
     if (discuss) pages.push(discuss);
   });

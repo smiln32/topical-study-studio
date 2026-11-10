@@ -42,7 +42,7 @@ python study_studio.py
 
 Then open `http://127.0.0.1:8765/study-starter.html`, also linked from the Studio's brief page. Fill in the study title, the brand for the footer, and one session per passage: the reference, a title, words to look up, and the observe, interpret, apply and prayer prompts, which the starter fills with wording that names the passage when you leave them blank. Up to four discussion questions give a session a second page. The starter lays out one page per session, checks it, previews every page at true size, and downloads the finished HTML or the specification as JSON. The JSON download needs no server; checking, preview and the finished HTML do.
 
-Without passage text, a page tells the reader where to read and quotes nothing. Paste NASB 2020 text into a session and the page prints it with verse numbers; the block grows to fit and the rows below give up the height. Quoted text needs the publisher's notice, which you copy from lockman.org into the form.
+Without passage text, a page tells the reader where to read and quotes nothing. Paste NASB 2020 text into a session and the page prints it with verse numbers; the block grows to fit and the rows below give up the height, and a passage too long for that gets a page of its own before the session page. Quoted text needs the publisher's notice, which you copy from lockman.org into the form.
 
 ## The Studio
 

@@ -66,8 +66,9 @@ html,body{margin:0;padding:0;background:#ececec;font-family:"Aptos","Helvetica N
 .label{font-size:9.5px;font-weight:700;margin-bottom:4px}
 .small{font-size:8.5px;color:#555}.callout{font-size:10px;line-height:1.35}
 .passage-ref{display:flex;justify-content:space-between;gap:12px;font-size:10.5px;font-weight:700;margin-bottom:4px}
+.passage-ref>span:first-child{min-width:0;overflow-wrap:anywhere}
 .passage-translation{font-size:8.5px;font-weight:400;color:#555;white-space:nowrap}
-.passage-text{font-size:11px;line-height:1.4}
+.passage-text{font-size:11px;line-height:1.4;overflow-wrap:anywhere}
 .passage-text sup{font-size:8.5px;font-weight:700;line-height:0;margin-right:2px}
 .passage-notice{font-size:8.5px;line-height:1.25;color:#555;margin-top:4px}
 .table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:8px}
@@ -255,13 +256,19 @@ LENGTH_RE = re.compile(r"^\d+(\.\d+)?(%|px|em|rem)$")
 HEAD_H, BODY_TOP_PAD, BORDER_W, LINE_H, CHECK_H, TABLE_ROW_H, TABLE_HEAD_H, PROMPT_H, PILL_H = 32, 11, 1.2, 22, 24, 31, 21, 16, 14
 TITLE_CHARS = 90
 PASSAGE_REF_H, PASSAGE_CHAR_W, PASSAGE_LINE_H, NOTICE_CHAR_W, NOTICE_LINE_H = 20, 5.6, 15.4, 4.4, 10.7
+REF_CHAR_W, REF_LINE_H, REF_LABEL_W = 6.4, 14, 64  # the reference wraps beside the translation label
 
 
 def is_count(value: Any) -> bool:
     """A whole number of rows: a non-negative int, or a string of digits. Not a bool, float or negative."""
     if isinstance(value, bool): return False
     if isinstance(value, int): return 0 <= value <= MAX_COUNT
-    return isinstance(value, str) and value.isdigit() and int(value) <= MAX_COUNT
+    return is_digits(value) and int(value) <= MAX_COUNT
+
+
+def is_digits(value: Any) -> bool:
+    """Plain ASCII digits, short enough that int() is safe. Excludes "²" and "①", which isdigit() accepts."""
+    return isinstance(value, str) and 0 < len(value) <= 6 and value.isascii() and value.isdigit()
 
 
 def _count(content: dict[str, Any], field: str, default: int) -> int:
@@ -286,9 +293,13 @@ def estimate_content_height(content: Any, width: int) -> float:
         verses = content.get("verses", [])
         chars = sum(len(str(v.get("text", ""))) + len(str(v.get("number", ""))) + 1 for v in verses if isinstance(v, dict)) if isinstance(verses, list) else 0
         notice = str(content.get("notice") or "")
-        inner = width - 2 * 13
-        total += PASSAGE_REF_H + -(-chars // int(inner / PASSAGE_CHAR_W)) * PASSAGE_LINE_H + _count(content, "rows", 0) * LINE_H
-        if notice: total += 4 + -(-len(notice) // int(inner / NOTICE_CHAR_W)) * NOTICE_LINE_H
+        inner = max(1, width - 2 * 13)
+        per_line = lambda char_w, room=inner: max(1, int(room / char_w))
+        reference = str(content.get("reference") or "")
+        ref_lines = max(1, -(-len(reference) // per_line(REF_CHAR_W, max(1, inner - REF_LABEL_W))))
+        total += PASSAGE_REF_H + (ref_lines - 1) * REF_LINE_H
+        total += -(-chars // per_line(PASSAGE_CHAR_W)) * PASSAGE_LINE_H + _count(content, "rows", 0) * LINE_H
+        if notice: total += 4 + -(-len(notice) // per_line(NOTICE_CHAR_W)) * NOTICE_LINE_H
     elif kind == "table": total += TABLE_HEAD_H + _count(content, "rows", 10) * TABLE_ROW_H
     elif kind == "split":
         default = {"type": "lines", "rows": 5}  # what render_content draws for a missing side
@@ -301,7 +312,7 @@ def uses_custom_html(spec: Any) -> bool:
     def walk(content: Any) -> bool:
         if not isinstance(content, dict): return False
         if content.get("type") == "custom_html": return True
-        return any(walk(content.get(side)) for side in ("left", "right"))
+        return content.get("type") == "split" and any(walk(content.get(side)) for side in ("left", "right"))
     if not isinstance(spec, dict) or not isinstance(spec.get("pages"), list): return False
     return any(
         walk(block.get("content"))
@@ -316,7 +327,8 @@ def passages(spec: Any) -> list[dict[str, Any]]:
     def walk(content: Any) -> None:
         if not isinstance(content, dict): return
         if content.get("type") == "passage": found.append(content)
-        for side in ("left", "right"): walk(content.get(side))
+        if content.get("type") == "split":
+            for side in ("left", "right"): walk(content.get(side))
     if isinstance(spec, dict) and isinstance(spec.get("pages"), list):
         for page in spec["pages"]:
             if isinstance(page, dict) and isinstance(page.get("blocks"), list):
@@ -375,7 +387,7 @@ def validate_content(content: Any, where: str) -> list[str]:
             for k, verse in enumerate(verses, 1):
                 number = verse.get("number") if isinstance(verse, dict) else None
                 text = verse.get("text") if isinstance(verse, dict) else None
-                if not ((isinstance(number, int) and not isinstance(number, bool) and number > 0) or (isinstance(number, str) and number.isdigit() and int(number) > 0)):
+                if not ((isinstance(number, int) and not isinstance(number, bool) and number > 0) or (is_digits(number) and int(number) > 0)):
                     findings.append(f'ERROR: {where}: verse {k} needs a "number", a whole number above 0.')
                 if not (isinstance(text, str) and text.strip()):
                     findings.append(f'ERROR: {where}: verse {k} needs its "text".')

@@ -168,6 +168,19 @@ one speaks of planners, examples or files that are now gone, it describes that d
   checks, and the real Studio and starter were driven in headless Chrome by throwaway scripts.
   The Timothy brief and plan are untouched and still wait at the stage 02 gate.
 
+- On 2026-11-10 Codex reviewed the stack from `cb9a65a` to `9a51c03`: fail, eight findings.
+  All are closed on `studies-only`, with a regression test each. A long passage could silently
+  drop words to look up or push blocks below the page; every word is now kept and a passage too
+  long for the session page gets a page of its own. Pages added past the Studio's ten patterns
+  repeated a concept; they are now numbered. The passage height ignored a wrapping reference;
+  it is counted, and long words wrap. References differing only in punctuation were not seen
+  as shared; the starter now normalises as the validator does. Verse numbers such as "²" and
+  over-long digit strings crashed validation, and so did row counts, which Codex did not
+  report; both are findings now. A passage block 28 px wide divided by zero; it is reported.
+  Passages and custom HTML outside a split's sides were counted though never drawn; only a
+  split's sides are walked now. Codex could not launch Chrome, so print preview, Linux fonts
+  and nested custom layouts are still unverified outside this machine.
+
 ## Next
 
 0. **Check the Scripture terms against the publisher's page; the owner decides.** Lockman's

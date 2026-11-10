@@ -109,7 +109,7 @@ Then go to `http://127.0.0.1:8765/study-starter.html`, or follow the link on the
 
 Each session becomes one page on the split layout: read the passage, observe beside words to look up, interpret, and apply beside a prayer. Row counts come from the engine's own height estimate, so the validator reports nothing, and every page reaches the bottom of the content area. What you type is saved in your browser, so the form survives a refresh; **Start over** clears it.
 
-To quote the passage, paste its NASB 2020 text into the session, one verse per line, each starting with its number, and copy the publisher's notice from lockman.org into the study's notice field. The block grows to fit the text, and the rows below it give up the height. Without passage text the page tells the reader where to read and quotes nothing.
+To quote the passage, paste its NASB 2020 text into the session, one verse per line, each starting with its number, and copy the publisher's notice from lockman.org into the study's notice field. The block grows to fit the text, and the rows below it give up the height; a passage too long for that gets a page of its own before the session page, and no word to look up is ever dropped. Without passage text the page tells the reader where to read and quotes nothing.
 
 ## Starting from the command line
 
