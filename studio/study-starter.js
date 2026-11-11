@@ -137,15 +137,26 @@ function sessionPage(sessions, i, theme, notice) {
     blocks,
   };
   if (!ownPage) return [page];
-  return [{
-    label: `Session ${n} · Passage`,
-    concept: `Session ${n} passage: ${refShown}`,
-    title: name ? `Session ${n}: ${name}` : `Session ${n}`,
-    subtitle: `${refShown}. Too long to share a page, so it has this one.`,
-    theme,
-    blocks: [{ x: CONTENT.left, y: CONTENT.top, w: CONTENT.full, h: CONTENT.bottom - CONTENT.top, title: `Read ${refShown}`, color: 'sage',
-      content: Object.assign({}, passageContent, { prompt: undefined }) }],
-  }, page];
+  /* Verses in order, as many to a page as fit; a verse is never split. */
+  const fullH = CONTENT.bottom - CONTENT.top, chunks = [[]];
+  verses.forEach(v => {
+    const last = chunks[chunks.length - 1];
+    if (last.length && passageBlockHeight(last.concat([v]), notice, false, ref) > fullH) chunks.push([v]);
+    else last.push(v);
+  });
+  const passagePages = chunks.map((part, k) => {
+    const more = chunks.length > 1 ? ` (part ${k + 1})` : '';
+    return {
+      label: `Session ${n} · Passage${chunks.length > 1 ? ' ' + (k + 1) : ''}`,
+      concept: `Session ${n} passage${more}: ${refShown}`,
+      title: name ? `Session ${n}: ${name}` : `Session ${n}`,
+      subtitle: k ? `${refShown}, continued.` : `${refShown}. Too long to share a page, so it has its own.`,
+      theme,
+      blocks: [{ x: CONTENT.left, y: CONTENT.top, w: CONTENT.full, h: fullH, title: `Read ${refShown}${more}`, color: 'sage',
+        content: Object.assign({}, passageContent, { verses: part, prompt: undefined }) }],
+    };
+  });
+  return passagePages.concat([page]);
 }
 
 function discussionPage(s, n, theme) {
@@ -359,10 +370,15 @@ if (typeof document !== 'undefined') (function () {
     await check();
   };
   $('#html').onclick = async () => {
+    const result = await check();
+    if (!result) return;
+    if (result.findings.some(f => f.includes('will not print'))) {
+      toast('Some text will not fit its box. Shorten it, or split the passage across sessions, before downloading.');
+      return;
+    }
     const html = await rendered();
     if (html === null) return;
     download(new Blob([html], { type: 'text/html' }), slug(form.title || 'study') + '.html');
-    await check();
   };
   $('#json').onclick = () => download(new Blob([JSON.stringify(spec(), null, 2)], { type: 'application/json' }), slug(form.title || 'study') + '.json');
   $('#study').onsubmit = e => { e.preventDefault(); check(); };

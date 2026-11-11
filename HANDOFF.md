@@ -178,7 +178,11 @@ one speaks of planners, examples or files that are now gone, it describes that d
   over-long digit strings crashed validation, and so did row counts, which Codex did not
   report; both are findings now. A passage block 28 px wide divided by zero; it is reported.
   Passages and custom HTML outside a split's sides were counted though never drawn; only a
-  split's sides are walked now. Codex could not launch Chrome, so print preview, Linux fonts
+  split's sides are walked now. Codex's re-review on 2026-11-11 found two left: a passage longer than
+  a whole page still clipped, and removing then adding a Studio page could repeat a concept. A long
+  passage now continues across as many pages as it needs, a verse never split, and the starter
+  refuses to download HTML the validator says will not print; an added page takes the first
+  identity no page has. Codex could not launch Chrome, so print preview, Linux fonts
   and nested custom layouts are still unverified outside this machine.
 
 ## Next

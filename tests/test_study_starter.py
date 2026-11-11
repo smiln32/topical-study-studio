@@ -158,7 +158,7 @@ class StudioPatternTests(unittest.TestCase):
     def build(self):
         source = (ROOT / "studio" / "app.js").read_text(encoding="utf-8")
         part = source[source.index("const patterns="):source.index("function load()")]
-        script = part + ";process.stdout.write(JSON.stringify({fresh:fresh(),all:{set_title:'x',pages:library.map(page)},many:{set_title:'x',pages:[...Array(25).keys()].map(pageAt)},patterns:Object.keys(patterns),used:library.map(x=>x[2])}))"
+        script = part + ";process.stdout.write(JSON.stringify({fresh:fresh(),all:{set_title:'x',pages:library.map(page)},many:{set_title:'x',pages:[...Array(25).keys()].map(pageAt)},churn:(()=>{let ps=[...Array(11).keys()].map(pageAt);for(let k=0;k<40;k++){ps.splice((k*7)%ps.length,1);ps.push(nextPage(ps));if(k%3===0)ps.push(nextPage(ps))}return{set_title:'x',pages:ps}})(),patterns:Object.keys(patterns),used:library.map(x=>x[2])}))"
         done = subprocess.run(["node", "-e", script], capture_output=True, text=True, encoding="utf-8", check=True)
         return json.loads(done.stdout)
 
@@ -166,6 +166,9 @@ class StudioPatternTests(unittest.TestCase):
         built = self.build()
         self.assertEqual(study_factory.validate(built["all"]), [])
         self.assertEqual(study_factory.validate(built["fresh"]), [])
+
+    def test_removing_then_adding_pages_never_repeats_a_concept(self):
+        self.assertEqual(study_factory.validate(self.build()["churn"]), [])
 
     def test_pages_added_past_the_library_still_validate(self):
         self.assertEqual(study_factory.validate(self.build()["many"]), [])

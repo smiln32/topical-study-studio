@@ -198,6 +198,17 @@ class StarterPassageTests(unittest.TestCase):
         short = self.build({"title": "T", "notice": NOTICE, "sessions": [{"reference": "Book 1", "passage": self.text(5)}]})
         self.assertEqual(len(short["pages"]), 1)
 
+    def test_a_passage_longer_than_a_page_continues_without_losing_a_verse(self):
+        for n in (60, 140):
+            with self.subTest(verses=n):
+                spec = self.build({"title": "T", "notice": NOTICE, "sessions": [{"reference": "Book 1", "passage": self.text(n)}]})
+                self.assertEqual(study_factory.validate(spec), [])
+                passage_pages = [p for p in spec["pages"] if "Passage" in p["label"]]
+                self.assertGreater(len(passage_pages), 1)
+                numbers = [v["number"] for p in passage_pages for v in p["blocks"][0]["content"]["verses"]]
+                self.assertEqual(numbers, list(range(1, n + 1)))
+                self.assertEqual(study_factory.count_verses(spec), n)
+
     def test_references_differing_only_in_punctuation_count_as_shared(self):
         spec = self.build({"title": "T", "sessions": [{"reference": "Psalm 23:1-3"}, {"reference": "Psalm 23:1\u20133"}]})
         self.assertEqual(study_factory.validate(spec), [])
