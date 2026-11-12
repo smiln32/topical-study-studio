@@ -164,7 +164,7 @@ planners, examples or files now gone, it is history.
   escapes theme, colour and geometry, themes and column widths must be colours and lengths,
   content taller than its box and blocks closer than 14 px draw warnings, `custom_html` is
   announced at generation time, and the documentation drift is gone. Finding 7, that no tool
-  enforces the export gate, is the recorded decision. Finding 9 is item 5 under Next.
+  enforces the export gate, is the recorded decision. Finding 9, the per-passage accuracy tick, is now item 9 under Next.
   Codex reviewed the branch on 2026-11-03 and returned seven follow-ups, all closed on it the
   same day: whole-number row counts capped at 200, a JSON error from the Studio on failure,
   the clipping estimate corrected against Chrome, a real colour check, and two document lines.
