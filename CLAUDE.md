@@ -53,10 +53,13 @@ python study_factory.py SPEC.json OUT.html --validate-only  # check a specificat
 python study_factory.py SPEC.json OUT.html                  # generate the pages
 python study_factory.py --init FILE.json --topic "TOPIC"    # a starter specification
 python study_studio.py                                      # the Studio at http://127.0.0.1:8765
+                                                            # and the starter at /study-starter.html
 ```
 
 No third-party Python packages. Python 3.9 is the floor; CI runs 3.12 only, so keep to 3.9
-syntax yourself. There is no linter or formatter; do not add one without asking.
+syntax yourself. There is no linter or formatter; do not add one without asking. The tests
+that measure printed pages need Chrome or Chromium, and those that run the starter's layout
+need Node; without them those tests skip and say so. CI has both, and nothing skips there.
 
 ## Rules that are not style preferences
 
@@ -73,9 +76,13 @@ syntax yourself. There is no linter or formatter; do not add one without asking.
   medication, grief, addiction or crisis is flagged for professional review before
   publication. Every stage says so.
 - **Scripture is the NASB 2020 only.** Quote from the New American Standard Bible 2020 (The
-  Lockman Foundation), keep one work under 500 verses, and cite 2020 alone in the copyright
-  notice. Do not quote or bundle any other translation, and do not paraphrase the notice:
-  copy the publisher's wording once it is confirmed at lockman.org.
+  Lockman Foundation) and nothing else, and keep one study within 500 quoted verses. Never type
+  a verse from memory: passage text comes from the person. The notice wording and the
+  publisher's other conditions are unsettled (`HANDOFF.md` item 0); do not write a notice into
+  the code, and never paraphrase one.
+- **The passage measures live in two places.** `study_factory.py` and
+  `studio/study-starter.js` both estimate passage height with the same constants. Change both
+  or neither; `tests/test_passage.py` fails when they differ.
 
 ## Working style here
 

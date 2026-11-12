@@ -9,9 +9,8 @@ do next is in `HANDOFF.md`.
 planner generator the repository was too close to the owner's sibling repository to keep
 both. A study is a different product that the same engine, validator, Studio and stages can
 serve: a set of sessions, each a few pages that take the reader through a passage and into
-application. The brand already fits; STG is Simplify to Glorify. The study content types,
-the per-session uniqueness rule and the study content guide are not built yet, so the stages
-build planners until they are, and `README.md` says what is planned and what is not.
+application. The brand already fits; STG is Simplify to Glorify. Planner support stayed
+until the study pieces existed; the next decision removed it.
 
 **It makes studies and nothing else.** Decided by the owner 2026-11-04. Planner support was
 removed: the examples, the template, the page-ideas prompt and the Studio's planner patterns are
@@ -34,11 +33,28 @@ editable; the `data-document-role="page"` marker on each section stays because t
 and CI count pages by it.
 
 **Scripture is quoted from the NASB 2020 and nothing else.** Decided by the owner
-2026-10-31. The New American Standard Bible 2020 (The Lockman Foundation) allows up to 500
-verses in one work without written permission, and its notice must cite 2020 only. No other
-translation is quoted or bundled. The exact notice wording and the policy's other conditions
-are to be confirmed at lockman.org before the first study ships; stage 04 is to count the
-verses and stage 05 to print the notice once the study build exists.
+2026-10-31. No other translation is quoted or bundled, and the engine prints the
+translation's name itself, so a block cannot name another. The engine refuses more than 500
+quoted verses in one study, counting a verse quoted twice twice; that was the publisher's
+limit as first understood. Lockman's page read on 2026-11-04 allows 1,000, adds a complete-book
+and a 50% condition, and words the notice's years differently, so the notice and those
+conditions wait on the owner; `HANDOFF.md` item 0 holds the detail.
+
+**Scripture is never typed from memory.** Added 2026-11-04 by an assistant and flagged to the
+owner, who has not overruled it. Passage text comes from the person, pasted into the starter
+or supplied to stage 03. A model misquotes, and a wrong verse in a printed study cannot be
+recalled. The chatbot prompt says the same.
+
+**The tool checks accuracy, not doctrine.** Doctrinal review was proposed and the owner
+declined it on 2026-10-31. Do not add it to `CLAUDE.md` or the stage contracts. Whether to
+check each reference against the text is a separate, open question, `HANDOFF.md` item 9.
+
+**A study goes deeper by levels, and stands on its own.** Agreed by the owner 2026-11-10 and
+2026-11-11. Every study follows the guidelines at level 1, and a whole study or one session
+can add context (level 2), backstory and history (level 3) and further Scripture (level 4).
+A leader's edition is an optional second output, never required: a study with no leader
+material is complete, and nothing leader-only prints in the reader's copy. Images may come
+later. `HANDOFF.md` items 3 to 6 hold the plan.
 
 ## The workspace
 
@@ -116,8 +132,22 @@ lay the pages out on the split recipe with row counts computed from the engine's
 height estimate, and use the Studio's server for checking, preview and the finished HTML.
 The layout function is pure and `tests/test_study_starter.py` runs it under Node and hands
 the result to the validator, so the starter cannot drift from what the engine accepts.
-Teaching the Studio's editor the callout and split types, and then opening a starter study
-in it, is the next step in `HANDOFF.md`; the starter was not made to wait for that.
+Teaching the Studio's editor those types, and opening a starter study in it, is in
+`HANDOFF.md`; the starter was not made to wait for that.
+
+**A passage takes the room it needs, and nothing is dropped to make it fit.** Decided
+2026-11-04 to 2026-11-12 through three Codex reviews. In the starter, a quoted passage grows and
+the rows below give up height down to a usable minimum, keeping room for every word to look up.
+A passage too long for the session page gets pages of its own, verses in order, a verse never
+split. The download validates one snapshot of the study and renders that same snapshot, and
+refuses when any text will not print. The passage height estimate lives in both
+`study_factory.py` and `studio/study-starter.js`, and a test holds them equal.
+
+**Writing lines share the height under a prompt; custom HTML keeps its own sizing.** Decided
+2026-11-04. A block's body is a flex column, so the last line can no longer fall outside the
+box. The rule applies only to blocks the engine draws: `custom_html` sits in a `.custom`
+wrapper and keeps the sizing its author wrote against, because the first attempt collapsed
+custom lines into a grey bar.
 
 **The design-system tokens are the authority for the Studio, and a test holds them.** Decided
 2026-10-31, when `_config/design-system.md` and `studio/styles.css` were reconciled. Where

@@ -1,33 +1,108 @@
 # Handoff
 
-Written 2026-10-29, when the repository was laid out as an ICM workspace; brought up to date
-2026-11-04. It holds the state of the work and what to do next. Why things are the way they
-are is in [`DECISIONS.md`](DECISIONS.md).
+Written 2026-10-29; brought up to date 2026-11-12. It holds the state of the work and what to
+do next. Why things are the way they are is in [`DECISIONS.md`](DECISIONS.md).
 
 ## State
 
-**The product makes studies only, since 2026-11-04.** The entries below are a dated record; where
-one speaks of planners, examples or files that are now gone, it describes that day.
+- **The product makes topical Bible studies and nothing else**, since 2026-11-04.
+- **`main` is at `89ef656`, pushed 2026-11-12, and CI passed:** 83 tests on Ubuntu, none
+  skipped, including the Chrome tests that measure printed fit and the Node tests that run the
+  starter's layout. That run is the first on Linux, so the passage-fit estimate has now held
+  under Linux fonts for the cases the tests cover. Print preview has still been checked only on
+  the owner's Windows machine.
+- **Merged:** the branches `study-starter`, `engine-clipped-lines`, `passage-block` and
+  `studies-only`. They still exist locally and can be deleted. Codex reviewed every commit on
+  them; the last review, of `d2a1954` and `89ef656`, passed with no findings.
+- **What a person can use today:**
+  - The study starter, `studio/study-starter.html`: a form that lays out one page per
+    session, plus a discussion page when questions are given, and quotes pasted NASB 2020 text
+    in a `passage` block. A passage too long for the session page gets pages of its own,
+    never splitting a verse. The download refuses a study the validator says will not print.
+  - The Studio, `studio/index.html`: ten study page patterns, edited block by block. Its editor
+    cannot yet edit callout, passage or split blocks.
+  - The five stages under `stages/`, for an assistant, rewritten for studies.
+- **The first study waits at the stage 02 gate.** *Timothy: Young and Trusted*, slug
+  `timothy`: six sessions of two pages for a led class of adults. The approved brief is
+  `stages/01_brief/output/timothy.brief.md` and the unapproved plan
+  `stages/02_pages/output/timothy.plan.md`, both on the owner's disk only. The plan's
+  first shortfall, a passage block, is now built.
+- **The vegetable-garden test run** is archived under each stage's
+  `output/archive/2026-11-01/`, on the owner's disk only. Do not carry it on.
+- **Not yet walked:** the cold-agent walk of 2026-11-01 ran on a planner. No fresh assistant
+  has taken a study through the five stages.
 
-- The repository lives at `github.com/smiln32/topical-study-studio`, public, created
-  2026-10-30 as `stg-planner-pages` and renamed 2026-11-01; the old address redirects.
-  `main` matches the remote and CI passed on it; `git log` carries the hash. No branch is
-  open: `handoff-after-rename`, described under the reviews below, was merged 2026-11-03.
-- The ICM structure is in place and `tests/test_stages.py` holds it. The walk in
-  `records/icm-audit.md` passes.
-- One planner has been taken through the five stages, in the cold walk of 2026-11-01
-  described below. The walk ended partway through a page-change revision, so on the owner's
-  disk `vegetable-garden.brief.md` and `vegetable-garden.plan.md` sit in the stage 01 and 02
-  `output/` folders and the first run's specification, check and export sit under
-  `output/archive/2026-11-01/` in stages 03 to 05. It was a test of the structure, not a
-  product; do not carry it on, and move the two files into the archive if the stage folders
-  should be clean before the first study. All of it is ignored by git, and a fresh clone's
-  `output/` folders hold only `.gitkeep`.
-- The engine is unchanged in behaviour but for one fix: the overlap check in
-  `study_factory.py` raised `TypeError` on a numeric string coordinate such as `"28"`
-  instead of reporting a finding. It now parses geometry once and compares integers, with a
-  test. The suite is thirty-eight checks. CI compiles `study_studio.py` as well, reads the
-  examples from `shared/examples/`, and carries the product's new name.
+## Next
+
+Items 0 and 1 are the owner's to decide. The build order agreed with the owner on 2026-11-11
+runs from item 2.
+
+0. **Settle the Scripture terms.** Lockman's page,
+   https://www.lockman.org/permission-to-quote-copyright-trademark-information/, marked
+   modified 2026-10-29 and read 2026-11-04, differs from what this repository assumed. It
+   allows up to 1,000 verses, where the engine stops at 500, which stays inside the limit. It
+   adds two conditions nothing here checks: the verses may not amount to a complete book of the
+   Bible, and may not exceed 50% of the work's text. Its notice lists 1960, 1971, 1977, 1995,
+   2020 and says to use only the last year corresponding to the edition quoted, with the example
+   that a 1995 quotation leaves out 2020; that reads as keeping the earlier years, where this
+   repository said cite 2020 alone. Certain not-for-sale print, such as church bulletins, may
+   use the abbreviation (NASB) alone; whether a class handout qualifies is a question for the
+   owner or Lockman. Until this is settled, no notice wording goes into the code.
+1. **Read the Timothy plan and decide.** Approve or change
+   `stages/02_pages/output/timothy.plan.md`. Running stage 03 is better after item 2, because
+   the validator still refuses a section title repeated across sessions.
+2. **Uniqueness per session.** The validator checks section titles and prompts across the
+   whole set, so every session that needs "Observe" is refused. Scope it to a session, define
+   what a session is in the specification, then drop the "Session n ·" prefixes the starter
+   adds as a workaround.
+3. **Depth levels.** Agreed with the owner: every study follows the guidelines, and a study or
+   a single session can go deeper.
+   - Level 1, the guide: what the starter makes today.
+   - Level 2, context: who wrote it, who first heard it, what was happening, key words. Needs
+     a prose block in the engine, with a height estimate like the passage block's.
+   - Level 3, backstory and history: narrative pages and a timeline, using the prose and table
+     blocks.
+   - Level 4, further Scripture: more passages, a cross-reference table, parallel passages.
+   - The starter gains a level for the study and an override per session; the brief and plan
+     templates gain a depth field; `references/CONTENT_GUIDE.md` gains a section per level,
+     including that every historical claim needs a source the author trusts.
+   - Where the deeper text comes from first, typed into the starter or drafted by an
+     assistant in the stages, is not yet decided; typing it into the starter was recommended.
+   - Start with fixed pages and a warning when text will not fit. Automatic continuation
+     pages only if that proves annoying.
+4. **The leader's edition, optional.** A study stands on its own. Leader guidance and
+   expected answers are an optional layer on a session or question, printed only in a second,
+   separate output the author chooses to generate. Nothing leader-only ever prints in the
+   reader's copy, and a study with no leader material is complete.
+5. **Other add-ins:** numbered discussion questions as their own block type, a memory-verse
+   card, a support map, a cover page and contents, a closing review page.
+6. **Images, later.** An image block embedded in the HTML, with a caption and a rights line.
+   Print resolution and rights need settling first.
+7. **Decide what the Studio is for.** Either teach its editor the callout, passage and split
+   blocks, so it can open and refine what the starter writes, or treat the starter as the
+   product. Teaching the editor was recommended. Its ten patterns and the starter's default
+   prompts are an assistant's wording: the owner should read them and change anything not in
+   their voice.
+8. **Scripture checks that wait on item 0:** stage 04's report recording the verse count and
+   the share of the work that is Scripture; checks for a complete book and the 50% condition;
+   stage 05 printing the notice once its wording is settled.
+9. **Decide on a per-passage accuracy tick.** The review of 2026-11-01 asked that, before the
+   first study quotes Scripture, stage 04 carry a line the author ticks per passage, "reference
+   checked against the NASB 2020 text". That is accuracy, not doctrine, so it does not reopen
+   the doctrinal-review decision; whether it goes in the contract is the owner's call.
+10. **The page engine and the page standard disagree on two colours.**
+    `references/DESIGN_STANDARD.md` gives block borders as `#606864` and rules as `#aeb7b2`;
+    `study_factory.py` draws `#5c5c5c` and `#b9b9b9`, and the Studio preview copies the engine.
+    Change the standard or the engine, not the Studio; if the engine moves, regenerate
+    `shared/examples/study/output.html` and look at it.
+11. **Small:** `study_studio.py` accepts `--host 0.0.0.0` with no authentication, and its help
+    text does not say so. The merged branches listed under State can be deleted.
+
+## Record
+
+Dated entries, oldest first. Each describes the repository on its day; where one speaks of
+planners, examples or files now gone, it is history.
+
 - An independent review on 2026-10-29 found seven gaps in the contracts: no way for stage
   05 to know the checked specification was the exported one, stale downstream files on a
   revision, stage 04 missing the inputs its report needs, an undefined warning note in
@@ -56,21 +131,18 @@ one speaks of planners, examples or files that are now gone, it describes that d
   the browser; the HTML is the generation format and stays editable. The
   `data-document-role="page"` marker on each section stays because the tests and CI count
   pages by it.
-- The product is pivoting to topical Bible studies quoting the NASB 2020; `DECISIONS.md`
+- On 2026-10-31 the product began pivoting to topical Bible studies quoting the NASB 2020; `DECISIONS.md`
   records the terms and `README.md`, `CLAUDE.md` and `HOW_IT_WORKS.md` describe the
   direction. The stage contracts, `references/`, `shared/` and the Studio still speak only
   of planners, which is accurate until the study build exists. No study has been briefed.
-  Doctrinal review was proposed and the owner declined it as a rule; do not add it to
-  `CLAUDE.md` or the contracts.
+  Doctrinal review was proposed and the owner declined it; `DECISIONS.md` records it.
 - On 2026-10-31 the owner named the product **Topical Study Studio**. The engine is now
   `study_factory.py`, the server `study_studio.py`, the test file
   `tests/test_study_factory.py`, and "Planner Studio" and "STG Planner Pages" are gone from
   every file. The browser's saved-draft key is unchanged so existing drafts still open. The
   repository was renamed on GitHub on 2026-11-01 and its URLs updated, and the folder on disk
   was renamed to `topical-study-studio` the same day; nothing inside depends on either name.
-  The repository description on GitHub still reads "STG Planner Pages: printable,
-  Canva-importable planner pages from a JSON specification" and is the owner's to change in
-  the repository settings.
+  The owner has since changed the repository description on GitHub.
 - On 2026-11-03 the first study went through stages 01 and 02 and stopped at the stage 02
   gate. It is *Timothy: Young and Trusted*, slug `timothy`: a led class of adults at church,
   30 minutes a session, six sessions of two pages, teacherly with a slant toward
@@ -187,57 +259,3 @@ one speaks of planners, examples or files that are now gone, it describes that d
   takes one snapshot for both. The read instruction also says "pages" when the passage spans
   several. Codex could not launch Chrome, so print preview, Linux fonts
   and nested custom layouts are still unverified outside this machine.
-
-## Next
-
-0. **Check the Scripture terms against the publisher's page; the owner decides.** Lockman's
-   page, https://www.lockman.org/permission-to-quote-copyright-trademark-information/, marked
-   modified 2026-10-29 and read 2026-11-04, differs from what `CLAUDE.md`, `DECISIONS.md` and
-   the README record. It allows up to 1,000 verses, where this repository says 500; the engine
-   keeps 500, which stays inside the limit. It adds two conditions that nothing here checks: the
-   verses may not amount to a complete book of the Bible, and may not exceed 50% of the work's
-   text. Its notice lists 1960, 1971, 1977, 1995, 2020 and says to use only the last year
-   corresponding to the edition quoted, with the example that a 1995 quotation leaves out 2020.
-   That reads as keeping the earlier years up to the edition, where this repository says cite
-   2020 alone, so ask Lockman or decide before printing a notice. Certain not-for-sale print
-   material, such as church bulletins, may use the abbreviation (NASB) alone; whether a class
-   handout qualifies is also a question for the owner or Lockman.
-
-1. **Read the Timothy plan and decide.** The first study, *Timothy: Young and Trusted*, has
-   been through stages 01 and 02 and waits at the stage 02 gate; see the State bullet. The
-   owner reads `stages/02_pages/output/timothy.plan.md`, changes the page list as wanted,
-   and chooses: build the engine changes in item 2 first and then run stage 03 with real
-   study blocks, or run stage 03 now with the approximations the plan names and record them
-   in its warnings file. The first is the better order; the plan exists so the engine can be
-   changed for a real page list, not a list of guesses.
-2. **The study build**, in the order the Timothy plan demands:
-   the passage block, built 2026-11-04 and now to be used on its twelve pages; uniqueness per session rather than per set, since the
-   validator will refuse "Read the passage" twelve times; numbered discussion questions,
-   which a led class needs on most pages; a memory-verse card; a timeline and a support
-   map, each wanted once; and, not demanded by this plan but still expected, a
-   cross-reference table and a prayer page. Each type is added to the engine,
-   `references/SPECIFICATION.md` and an example; a study content guide, observation then interpretation then application; a verse
-   count in stage 04 that fails above 500 and reports the proportion of the work that is
-   Scripture; the NASB 2020 notice printed by stage 05, with the wording copied from
-   lockman.org once; and a fuller study example in `shared/examples/`. `shared/examples/study/` is a start: one session on Psalm 23 built from the
-   planner types, made 2026-11-01 as the source of the README image. It quotes no Scripture,
-   so it needs no notice; a full study example still waits on the study types.
-3. **The page engine and the page standard disagree on two colours.**
-   `references/DESIGN_STANDARD.md` gives block borders as `#606864` and rules as `#aeb7b2`;
-   `study_factory.py` draws them `#5c5c5c` and `#b9b9b9`, and the Studio preview copies
-   the engine. Change the standard or the engine, not the Studio. Changing the engine alters
-   every generated page, so if the engine moves, regenerate `shared/examples/study/output.html`
-   and look at it.
-4. **A small item**, not blocking: `study_studio.py` accepts `--host 0.0.0.0` with no authentication and
-   its help text does not say so.
-5. **Teach the Studio's editor the callout and split types.** `studio/app.js` draws and
-   edits only lines, checklists and choices; a callout or a split shows as writing lines in
-   the preview and the response-style control has no value for it. Once the editor draws
-   both and offers them as response styles, the study starter can gain an **Open in the
-   Studio** button that writes its specification to the Studio's saved draft, and the
-   Studio's JSON download can stand in for the starter's. Until then the starter's JSON is
-   edited by hand or taken through stage 03.
-6. **Decide on a per-passage accuracy tick.** The review of 2026-11-01 asked that, before the
-   first study quotes Scripture, stage 04 carry a line the author ticks per passage, "reference
-   checked against the NASB 2020 text". That is accuracy, not doctrine, so it does not reopen
-   the doctrinal-review decision; whether it goes in the contract is the owner's call.

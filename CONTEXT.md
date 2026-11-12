@@ -59,9 +59,12 @@ assistant does them, with the same engine and the same rules.
 **Changing the tool**
 
 - **"Change how a page prints"** → `study_factory.py`, held to `references/DESIGN_STANDARD.md`.
-- **"Change the Studio"** → `studio/`, held to `_config/design-system.md`.
+- **"Change the Studio"** → `studio/app.js` and `studio/index.html`, held to `_config/design-system.md`.
+- **"Change the study starter"** → `studio/study-starter.js` and `studio/study-starter.html`,
+  held to `tests/test_study_starter.py` and `tests/test_passage.py`.
 - **"Run or fix the tests"** → `tests/`.
-- **"Add a content type"** → `study_factory.py`, then `references/SPECIFICATION.md`, then an example.
+- **"Add a content type"** → `study_factory.py`, then `references/SPECIFICATION.md`, then an example;
+  then the starter if it should offer the type.
 
 **Finding something out**
 
@@ -90,8 +93,8 @@ The stages do not contain the code that does the work. They call it.
 | Where | What |
 |---|---|
 | `study_factory.py` | Validates a specification and turns it into pages |
-| `study_studio.py` | The local server behind the Studio |
-| `studio/` | The Studio |
+| `study_studio.py` | The local server behind the Studio and the study starter |
+| `studio/` | The Studio and the study starter |
 | `assets/` | The README's pictures and the approved design references |
 | `tests/` | The checks, including `test_stages.py`, which holds this structure |
 
