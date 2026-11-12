@@ -182,7 +182,10 @@ one speaks of planners, examples or files that are now gone, it describes that d
   a whole page still clipped, and removing then adding a Studio page could repeat a concept. A long
   passage now continues across as many pages as it needs, a verse never split, and the starter
   refuses to download HTML the validator says will not print; an added page takes the first
-  identity no page has. Codex could not launch Chrome, so print preview, Linux fonts
+  identity no page has. Codex's third review, of `98fa869`, found the guard could check one
+  specification and download another edited while the check was pending; the download now
+  takes one snapshot for both. The read instruction also says "pages" when the passage spans
+  several. Codex could not launch Chrome, so print preview, Linux fonts
   and nested custom layouts are still unverified outside this machine.
 
 ## Next

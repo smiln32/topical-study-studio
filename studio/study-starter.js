@@ -52,6 +52,18 @@ function passageBlockHeight(verses, notice, hasPrompt, reference) {
   return Math.ceil(need + HEAD_H + BODY_TOP_PAD + 2 * BORDER_W + 1);
 }
 
+/* How many full pages a passage takes when it cannot share the session page; a verse is never split. */
+function passageChunks(verses, notice, ref) {
+  const fullH = CONTENT.bottom - CONTENT.top, chunks = [[]];
+  verses.forEach(v => {
+    const last = chunks[chunks.length - 1];
+    if (last.length && passageBlockHeight(last.concat([v]), notice, false, ref) > fullH) chunks.push([v]);
+    else last.push(v);
+  });
+  return chunks;
+}
+function passagePageCount(verses, notice, ref) { return passageChunks(verses, notice, ref).length; }
+
 /* The wording the starter writes when a field is left blank. Each one carries the passage
    reference, and the session number as well when another session has the same reference,
    so the same field on two sessions never repeats a prompt. */
@@ -110,7 +122,7 @@ function sessionPage(sessions, i, theme, notice) {
   const observeY = 104 + readH + CONTENT.gap, interpretY = observeY + observeH + CONTENT.gap, applyY = interpretY + interpretH + CONTENT.gap;
   const applyH = Math.max(92, CONTENT.bottom - applyY);
   const passageContent = Object.assign({ type: 'passage', reference: ref, verses }, notice ? { notice } : {}, readEdited ? { prompt: value.read } : {});
-  const readText = ownPage && !readEdited ? `Read ${refShown} on the page before this one, twice, once silently and once aloud. Then write out the verse that speaks most clearly to you.` : value.read;
+  const readText = ownPage && !readEdited ? `Read ${refShown} on the ${passagePageCount(verses, notice, ref) > 1 ? 'pages' : 'page'} before this one, twice, once silently and once aloud. Then write out the verse that speaks most clearly to you.` : value.read;
   const readContent = quoting && !ownPage ? passageContent : { type: 'callout', text: readText, rows: calloutRows(150, readText, CONTENT.full) };
   const blocks = [
     { x: CONTENT.left, y: 104, w: CONTENT.full, h: readH, title: ownPage ? `Session ${n} · Before you begin` : refShown ? `Read ${refShown}` : `Session ${n} · Read the passage`, color: 'sage', content: readContent },
@@ -138,12 +150,7 @@ function sessionPage(sessions, i, theme, notice) {
   };
   if (!ownPage) return [page];
   /* Verses in order, as many to a page as fit; a verse is never split. */
-  const fullH = CONTENT.bottom - CONTENT.top, chunks = [[]];
-  verses.forEach(v => {
-    const last = chunks[chunks.length - 1];
-    if (last.length && passageBlockHeight(last.concat([v]), notice, false, ref) > fullH) chunks.push([v]);
-    else last.push(v);
-  });
+  const fullH = CONTENT.bottom - CONTENT.top, chunks = passageChunks(verses, notice, ref);
   const passagePages = chunks.map((part, k) => {
     const more = chunks.length > 1 ? ` (part ${k + 1})` : '';
     return {
@@ -202,7 +209,18 @@ function buildStudySpec(form) {
   };
 }
 
-if (typeof module !== 'undefined' && module.exports) module.exports = { buildStudySpec, sessionDefaults, defaultsFor, parseVerses };
+/* Check a specification and, only if nothing will be cut off, render that same specification. The
+   caller passes one snapshot, so an edit made while the check is pending cannot reach the download. */
+async function checkedRender(snapshot, validate, render) {
+  const body = JSON.stringify(snapshot);
+  const result = await validate(body);
+  if (!result) return { ok: false, reason: 'unchecked' };
+  if (result.findings.some(f => f.includes('will not print'))) return { ok: false, reason: 'clipped', result };
+  const html = await render(body);
+  return html === null ? { ok: false, reason: 'unrendered', result } : { ok: true, html, result };
+}
+
+if (typeof module !== 'undefined' && module.exports) module.exports = { buildStudySpec, sessionDefaults, defaultsFor, parseVerses, checkedRender };
 
 /* ---------------------------------------------------------------- the page */
 if (typeof document !== 'undefined') (function () {
@@ -312,15 +330,15 @@ if (typeof document !== 'undefined') (function () {
   }
   const OFFLINE = 'The local generator is not running. Start it with python study_studio.py and open this page from there to check, preview and download the finished HTML. The JSON download works without it.';
 
-  async function post(path) {
-    return fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(spec()) });
+  async function post(path, body) {
+    return fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body === undefined ? JSON.stringify(spec()) : body });
   }
   async function payloadOf(r) {
     try { return await r.json(); } catch { return {}; }
   }
-  async function check() {
+  async function check(body) {
     let r;
-    try { r = await post('/api/validate'); } catch { showFindings([OFFLINE], false); return null; }
+    try { r = await post('/api/validate', body); } catch { showFindings([OFFLINE], false); return null; }
     const payload = await payloadOf(r);
     if (!r.ok || !Array.isArray(payload.findings)) {
       showFindings([`ERROR: The generator could not check the study (${payload.error || `it answered ${r.status}`}).`], false);
@@ -329,9 +347,9 @@ if (typeof document !== 'undefined') (function () {
     showFindings(payload.findings, !!payload.valid);
     return payload;
   }
-  async function rendered() {
+  async function rendered(body) {
     let r;
-    try { r = await post('/api/render'); } catch { showFindings([OFFLINE], false); return null; }
+    try { r = await post('/api/render', body); } catch { showFindings([OFFLINE], false); return null; }
     if (!r.ok) {
       const payload = await payloadOf(r);
       showFindings(payload.findings || [`ERROR: ${payload.error || `The generator answered ${r.status}.`}`], false);
@@ -364,21 +382,19 @@ if (typeof document !== 'undefined') (function () {
   $('#reset').onclick = () => { if (confirm('Clear every field and start over?')) clearAll(); };
   $('#check').onclick = check;
   $('#preview').onclick = async () => {
-    const html = await rendered();
+    const body = JSON.stringify(spec());
+    const html = await rendered(body);
     if (html === null) return;
     $('#frame').srcdoc = html; $('#previewCard').hidden = false; $('#previewCard').scrollIntoView({ behavior: 'smooth' });
-    await check();
+    await check(body);
   };
   $('#html').onclick = async () => {
-    const result = await check();
-    if (!result) return;
-    if (result.findings.some(f => f.includes('will not print'))) {
+    const out = await checkedRender(spec(), check, rendered);
+    if (out.reason === 'clipped') {
       toast('Some text will not fit its box. Shorten it, or split the passage across sessions, before downloading.');
       return;
     }
-    const html = await rendered();
-    if (html === null) return;
-    download(new Blob([html], { type: 'text/html' }), slug(form.title || 'study') + '.html');
+    if (out.ok) download(new Blob([out.html], { type: 'text/html' }), slug(form.title || "study") + '.html');
   };
   $('#json').onclick = () => download(new Blob([JSON.stringify(spec(), null, 2)], { type: 'application/json' }), slug(form.title || 'study') + '.json');
   $('#study').onsubmit = e => { e.preventDefault(); check(); };

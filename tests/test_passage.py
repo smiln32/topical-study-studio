@@ -209,6 +209,28 @@ class StarterPassageTests(unittest.TestCase):
                 self.assertEqual(numbers, list(range(1, n + 1)))
                 self.assertEqual(study_factory.count_verses(spec), n)
 
+    def test_the_instruction_says_pages_when_the_passage_spans_several(self):
+        one = self.build({"title": "T", "notice": NOTICE, "sessions": [{"reference": "Book 1", "passage": self.text(30)}]})
+        many = self.build({"title": "T", "notice": NOTICE, "sessions": [{"reference": "Book 1", "passage": self.text(140)}]})
+        self.assertIn("on the page before this one", one["pages"][-1]["blocks"][0]["content"]["text"])
+        self.assertIn("on the pages before this one", many["pages"][-1]["blocks"][0]["content"]["text"])
+
+    def test_the_download_renders_exactly_what_it_checked(self):
+        script = """
+const m = require(process.argv[1]);
+const form = {title: 'T', sessions: [{reference: 'Book 1', passage: '1 Short.'}]};
+const seen = {};
+const validate = async body => { seen.checked = body; form.sessions[0].passage = '1 ' + 'x'.repeat(12000); return {valid: true, findings: []}; };
+const render = async body => { seen.rendered = body; return '<html></html>'; };
+const clipped = async body => ({valid: true, findings: ['Page 1, block 1: what runs past the bottom will not print.']});
+(async () => {
+  const out = await m.checkedRender(m.buildStudySpec(form), validate, render);
+  const refused = await m.checkedRender(m.buildStudySpec(form), clipped, async () => { throw new Error('rendered a clipped study'); });
+  process.stdout.write(JSON.stringify({same: seen.checked === seen.rendered, short: !seen.rendered.includes('xxxx'), ok: out.ok, refused: refused.reason}));
+})();"""
+        done = subprocess.run(["node", "-e", script, str(ROOT / "studio" / "study-starter.js")], capture_output=True, text=True, encoding="utf-8", check=True)
+        self.assertEqual(json.loads(done.stdout), {"same": True, "short": True, "ok": True, "refused": "clipped"})
+
     def test_references_differing_only_in_punctuation_count_as_shared(self):
         spec = self.build({"title": "T", "sessions": [{"reference": "Psalm 23:1-3"}, {"reference": "Psalm 23:1\u20133"}]})
         self.assertEqual(study_factory.validate(spec), [])
