@@ -331,7 +331,7 @@ if (typeof document !== 'undefined') (function () {
   const OFFLINE = 'The local generator is not running. Start it with python study_studio.py and open this page from there to check, preview and download the finished HTML. The JSON download works without it.';
 
   async function post(path, body) {
-    return fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body === undefined ? JSON.stringify(spec()) : body });
+    return fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: typeof body === 'string' ? body : JSON.stringify(spec()) });
   }
   async function payloadOf(r) {
     try { return await r.json(); } catch { return {}; }
@@ -380,7 +380,7 @@ if (typeof document !== 'undefined') (function () {
   });
   $('#addSession').onclick = () => { form.sessions.push(freshSession()); renderSessions(); save(); renderSpec(); $(`#s${form.sessions.length}-reference`).focus(); };
   $('#reset').onclick = () => { if (confirm('Clear every field and start over?')) clearAll(); };
-  $('#check').onclick = check;
+  $('#check').onclick = () => check();
   $('#preview').onclick = async () => {
     const body = JSON.stringify(spec());
     const html = await rendered(body);
